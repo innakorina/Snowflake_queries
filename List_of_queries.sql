@@ -29,3 +29,6 @@ where r1.cancellation_id is null
         and r1.is_walkin!=1 and r1.date_booked < '2018-10-31' and u.foreign_id in 
 (select r2.user_id from resy_info r2 where r2.date_created between '2018-08-02' and '2018-10-31')
 group by 1;
+
+
+hi from Inna
