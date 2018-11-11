@@ -70,3 +70,24 @@ group by "venue_id", "City", "Restaurant"
 order by "City", "Total_Reservations" desc
 ) g
 limit 10;
+
+"Query of a sub-sub-query"
+
+select resys."res_count", count(resys."user_id") as "user_count"
+from
+(select count(distinct r.id) as "res_count", active_users."user_id"
+from
+(
+select u.id as "user_id", r.id as "res_id"
+FROM USER_info AS u
+JOIN resy_info r on r.user_id = u.id
+where R.DATE_CREATED > '2018-07-20' and R.DATE_CREATED < '2018-11-01'
+) as active_users
+JOIN resy_info r on r.user_id = active_users."user_id"
+group by active_users."user_id"
+order by "res_count" desc 
+) as resys
+group by resys."res_count"
+order by resys."res_count"
+;
+
