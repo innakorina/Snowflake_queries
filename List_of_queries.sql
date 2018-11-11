@@ -221,3 +221,10 @@ where rr.DATE_booked > '2018-07-01' and rr.DATE_booked < '2018-10-01'
 GROUP BY uu.id
 order by uu.id
 ;
+
+"Displaying active users per each location"
+select uul.location, count(uul.user_ID) as "num of active users"
+from user_user_locations uul
+join active_user_user auu on auu.user_id=uul.user_id
+group by uul.location
+order by uul.location
