@@ -42,3 +42,31 @@ order by li.id
 ;
 // "had to add li.name to group by to be able to select li.name"
 
+"Top 10 restaurants wrt reservations in metro cities. 
+When there are less than 10 venues it's b/c the city likely 
+went live that year & only had those venues active. 
+The query used excludes inactive venues, cancellations, no shows, and walkins. 
+"
+
+// Top 10 restaurants in different cities: 1, 2, 4, 5, (8,22,12,19), (22), 12, 192
+select g."Restaurant", 
+g."City",
+g."Total_Reservations", 
+g."Total_Covers" 
+from (
+select r.venue_id "venue_id", v.name "Restaurant",
+        li.name "City", count(r.id) "Total_Reservations", sum(r.num_seats) "Total_Covers"  
+from reservation_bookreservation r 
+join reservation_bookreservationstatus s on s.reservation_id=r.id 
+join venue_info v on v.id=r.venue_id and v.is_active=1
+inner join location_info li on li.id=v.location_id
+where r.venue_id !=1278
+and r.cancellation_id is null
+and s.status_id!=2
+and v.location_id in (1)
+and year(r.date_created)=2018
+and r.date_created <= '2018-11-01'
+group by "venue_id", "City", "Restaurant"
+order by "City", "Total_Reservations" desc
+) g
+limit 10;
