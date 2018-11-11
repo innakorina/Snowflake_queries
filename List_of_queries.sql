@@ -223,8 +223,9 @@ order by uu.id
 ;
 
 "Displaying active users per each location"
-select uul.location, count(uul.user_ID) as "num of active users"
-from user_user_locations uul
-join active_user_user auu on auu.user_id=uul.user_id
-group by uul.location
-order by uul.location
+select ul.location ,li.code, count(ul.user_id) as "num of active users"
+from EXPERIMENTAL.PUBLIC.USER_LOCATIONS_BY_MAX as ul
+join EXPERIMENTAL.PUBLIC.active_user_user auu on auu.user_id=ul.user_id
+inner join PC_FIVETRAN_DB.AURORA_CORE.LOCATION_INFO as li on li.id=ul.location
+group by ul.location, li.code
+order by ul.location asc
