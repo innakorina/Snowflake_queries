@@ -161,4 +161,26 @@ group by month(r.date_created), year(r.date_created)
 order by Month_Year
 ;
 
+"New registered User counts per month per city using the user_locations_max table"
+
+// What is the number of new registered users, broken out by month, in 2018 by App city?
+
+select date_from_parts(year(u.date_created), month(u.date_created), 1) Month_Year, //count(distinct ulm.user_id) New_Users
+
+count(case when li.name like 'New York' then ulm.user_id end) NYC, 
+count(case when li.name like 'Los Angeles' then ulm.user_id end) LA,
+count(case when li.name like 'San Francisco' then ulm.user_id end) SF,            
+count(case when li.name like 'Washington D.C.' then ulm.user_id end) Wash_DC,            
+count(case when li.name like 'Austin' then ulm.user_id end) Austin,            
+count(case when li.name like 'London' then ulm.user_id end) London            
+            
+from EXPERIMENTAL.PUBLIC.USER_LOCATIONS_BY_MAX ulm
+join user_info u on u.id = ulm.user_id
+//join user_user uu on uu.id = ulm.user_id
+join location_info li on li.id = ulm.location
+where u.date_created >= '2016-10-01' and u.date_created <= '2018-09-30'
+and li.name in ('New York','Los Angeles', 'San Francisco','Washington D.C.','Austin', 'London')
+group by Month_Year
+order by Month_Year
+;
 
