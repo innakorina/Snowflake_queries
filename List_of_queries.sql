@@ -91,3 +91,74 @@ group by resys."res_count"
 order by resys."res_count"
 ;
 
+
+"Reservations per month and per city. Uses pivot to create a separate column for each city"
+
+// Reservations per app city per month
+select *
+from (
+select
+month(r.date_created) Month,
+year(r.date_created) Year,
+date_from_parts(Year, Month, 1) Month_Year,
+li.name City,
+count(distinct r.user_id) Total_Users
+from reservation_bookreservation r
+inner join reservation_bookreservationstatus s on r.id = s.reservation_id and s.status_id != 2
+join venue_info v on v.id=r.venue_id and v.is_active=1
+join location_info li on li.id=v.location_id
+where
+r.cancellation_id is null
+and r.venue_id != 1278
+and City in ('New York','Los Angeles', 'San Francisco','Washington D.C.','Austin', 'London')
+group by Month, Year, City
+order by Month_Year
+) g
+pivot
+(sum(g.Total_Users)
+for City in ('New York','Los Angeles', 'San Francisco','Washington D.C.','Austin', 'London')
+) piv
+order by Month_Year desc
+;
+
+"Reservations per month and per source. Uses case when to create a different column for each source"
+
+select 
+date_from_parts(year(r.date_created), month(r.date_created), 1) Month_Year,
+    count(case when   
+            r.source_id not like 'resy_os' and 
+            r.source_id not like 'resy_app' and 
+            r.source_id not like 'resy.com' and 
+            r.source_id not like 'Airbnb' and 
+            r.source_id not like 'Instagram' and 
+            r.source_id not like '%facebook'and 
+            r.source_id not like '%import%' 
+        then 
+            r.id end) Widget_Resys,            
+     count(case when 
+            r.source_id like 'Airbnb' or 
+            r.source_id like 'Instagram' or
+            r.source_id like '%facebook' or
+            r.source_id like '%import%'
+         then 
+            r.num_seats end) Third_Party_Resys,
+     count(case when r.source_id like 'resy_app'  then r.id end) Resy_App_Resys,
+     count(case when r.source_id like 'resy_os' and r.is_walkin = 0 then r.id end) Resy_OS_Resys,  //not excluding walkins bc table is missing
+// //     sum(case when r.source_id like 'resy_os' and r.is_walkin = 0 and not exists (select 1 from wait_list_waitlist w where w.reservation_id = r.id) then r.num_seats end) Resy_OS_Covers
+// //     sum(case when r.source_id like 'resy_os' and (r.is_walkin = 1 or exists (select 1 from wait_list_waitlist w where w.reservation_id = r.id)) then r.num_seats end) Walkin_Covers
+     count(case when r.source_id like 'resy.com' then r.id  end) Resycom_Resys,
+count(distinct r.id) Total_Resys,
+count(case when r.source_id like 'resy.com' or  r.source_id like 'resy_app' then r.id end) Resy_Platform_Resys,
+sum(r.num_seats) Total_Covers
+// //     sum(case when r.source_id like 'resy.com' or  r.source_id like 'resy_app' then r.id end)/sum(r.id) Percent_Resy_Platform_Resys // wrong, not per month
+from reservation_bookreservation r 
+  inner join reservation_bookreservationstatus s on r.id = s.reservation_id and s.status_id != 2
+where  
+  r.cancellation_id is null
+  and r.venue_id != 1278
+  and r.date_created >= '2016-09-01'
+group by month(r.date_created), year(r.date_created)
+order by Month_Year
+;
+
+
