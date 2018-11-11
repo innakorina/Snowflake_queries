@@ -184,3 +184,40 @@ group by Month_Year
 order by Month_Year
 ;
 
+
+----------------how the user location was identified---------------------------------------
+"Locations attendance for each user from user_user and their counts"
+Create TABLE experimental.public.user_user_locations (User_ID Number(20,0), Location Number(20,0), resycount NUMBER(20,0)) 
+AS
+select uu.id as "user ID", v.location_id as "Location", count(r.id) as "resyCount"
+ from user_user as uu
+  JOIN reservation_bookreservation r on r.user_id = uu.id
+  left outer JOIN venue_info v on v.id = r.venue_id
+GROUP BY uu.id, v.location_id
+ORDER BY uu.id, "resyCount" desc
+
+
+
+"Selecting only a location with max number of reservations for each user= simple algorythm. In order to display all content a trick is to join a table with itself"
+create table experimental.public.user_locations_by_max (User_ID NUMBER(20,0), Location Number (20,0), resycount NUMBER(20,0)) 
+AS
+SELECT uul.User_id, uul.location, uul.resycount
+FROM user_user_locations uul
+INNER JOIN (
+    SELECT User_id, MAX(resycount) resycount
+    FROM user_user_locations
+    GROUP BY user_id
+) uul2 ON uul.user_id = uul2.user_id AND uul.resycount = uul2.resycount
+order by user_id
+
+
+"filtering only active users from user_user (<90 days)"
+Create TABLE experimental.public.active_user_user (User_ID NUMBER(20,0), resycount NUMBER(20,0)) 
+AS
+select uu.id as "active_user_ID", count(rr.id) as "num of res for 90 days"
+FROM USER_user AS uu
+JOIN reservation_bookreservation rr on rr.user_id = uu.id
+where rr.DATE_booked > '2018-07-01' and rr.DATE_booked < '2018-10-01'
+GROUP BY uu.id
+order by uu.id
+;
