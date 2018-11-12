@@ -187,45 +187,56 @@ order by Month_Year
 
 ----------------how the user location was identified---------------------------------------
 "Locations attendance for each user from user_user and their counts"
-Create TABLE experimental.public.user_user_locations (User_ID Number(20,0), Location Number(20,0), resycount NUMBER(20,0)) 
+Create TABLE experimental.public.user_locations (User_ID Number(20,0), Location Number(20,0), resycount NUMBER(20,0)) 
 AS
-select uu.id as "user ID", v.location_id as "Location", count(r.id) as "resyCount"
- from user_user as uu
-  JOIN reservation_bookreservation r on r.user_id = uu.id
-  left outer JOIN venue_info v on v.id = r.venue_id
-GROUP BY uu.id, v.location_id
-ORDER BY uu.id, "resyCount" desc
+select u.id as "user ID", v.location_id as "Location", count(ri.id) as "resyCount"
+ from user_info as u
+  JOIN resy_info ri on ri.user_id = u.id
+  left outer JOIN venue_info v on v.id = ri.venue_id
+
+GROUP BY u.id, v.location_id
+ORDER BY u.id, "resyCount" desc
+;
 
 
 
 "Selecting only a location with max number of reservations for each user= simple algorythm. In order to display all content a trick is to join a table with itself"
 create table experimental.public.user_locations_by_max (User_ID NUMBER(20,0), Location Number (20,0), resycount NUMBER(20,0)) 
 AS
-SELECT uul.User_id, uul.location, uul.resycount
-FROM user_user_locations uul
+
+SELECT ul.User_id, ul.location, ul.resycount
+FROM user_locations ul
 INNER JOIN (
     SELECT User_id, MAX(resycount) resycount
-    FROM user_user_locations
+    FROM user_locations
     GROUP BY user_id
-) uul2 ON uul.user_id = uul2.user_id AND uul.resycount = uul2.resycount
+) ul2 ON ul.user_id = ul2.user_id AND ul.resycount = ul2.resycount
 order by user_id
 
 
-"filtering only active users from user_user (<90 days)"
-Create TABLE experimental.public.active_user_user (User_ID NUMBER(20,0), resycount NUMBER(20,0)) 
+
+"Creating a table with only active users from user_info (<90 days)"
+Create TABLE experimental.public.active_users (User_ID NUMBER(20,0), resycount NUMBER(20,0)) 
 AS
-select uu.id as "active_user_ID", count(rr.id) as "num of res for 90 days"
-FROM USER_user AS uu
-JOIN reservation_bookreservation rr on rr.user_id = uu.id
-where rr.DATE_booked > '2018-07-01' and rr.DATE_booked < '2018-10-01'
-GROUP BY uu.id
-order by uu.id
+select u.id as "active_user_ID", count(r.id) as "num of res for 90 days"
+FROM USER_info AS u
+JOIN resy_info r on r.user_id = u.id
+where R.DATE_CREATED > '2018-07-01' and R.DATE_CREATED < '2018-09-31'
+GROUP BY u.id
+order by u.id
 ;
 
-"Displaying active users per each location"
+"Displaying users by market"
+select ul.location,li.code, count(ul.user_id) 
+from EXPERIMENTAL.PUBLIC.USER_LOCATIONS_BY_MAX as ul
+inner join PC_FIVETRAN_DB.AURORA_CORE.LOCATION_INFO as li on li.id=ul.location
+group by ul.location, li.code//, count (ul.user_id)
+order by ul.location asc
+
+"displaying ACTIVE users by market"
 select ul.location ,li.code, count(ul.user_id) as "num of active users"
 from EXPERIMENTAL.PUBLIC.USER_LOCATIONS_BY_MAX as ul
-join EXPERIMENTAL.PUBLIC.active_user_user auu on auu.user_id=ul.user_id
+join EXPERIMENTAL.PUBLIC.active_users au on au.user_id=ul.user_id
 inner join PC_FIVETRAN_DB.AURORA_CORE.LOCATION_INFO as li on li.id=ul.location
 group by ul.location, li.code
 order by ul.location asc
