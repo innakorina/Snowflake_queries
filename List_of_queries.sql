@@ -240,3 +240,27 @@ join EXPERIMENTAL.PUBLIC.active_users au on au.user_id=ul.user_id
 inner join PC_FIVETRAN_DB.AURORA_CORE.LOCATION_INFO as li on li.id=ul.location
 group by ul.location, li.code
 order by ul.location asc
+
+
+// Active users with all their completed reservation info
+
+select uu.id, r.id, li.name, v.id
+//select uu.id
+from user_user as uu
+inner join 
+(
+select u.id as user_id, ri.id as res_id
+FROM USER_info AS u
+JOIN resy_info ri on ri.user_id = u.id
+where Ri.DATE_CREATED > '2018-07-01' and Ri.DATE_CREATED < '2018-10-01'
+) as au on uu.foreign_id=au.user_id
+inner join reservation_bookreservation r on r.user_id=uu.id
+// //left join reservation_cancellation c on r.cancellation_id = c.id 
+left join reservation_bookreservationstatus s on r.id = s.reservation_id
+inner join venue_info v on v.id = r.venue_id
+inner join location_info li on li.id = v.location_id
+where
+r.cancellation_id is null
+//and u.foreign_type = 'resy_app'
+and r.venue_id != 1278
+;
