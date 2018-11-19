@@ -12,17 +12,26 @@ alter user pc_fivetran_user set password = 'abc123';
 // Enable or disable Multi-factor authentication
 ALTER USER userName SET DISABLE_MFA = TRUE;
 
-// Create a user and role
+// Create a user and grant a role
+create role if not exists looker_role;
 alter user pc_fivetran_user set default_role = PC_FIVETRAN_ROLE;
-
 grant role PC_FIVETRAN_ROLE to user pc_fivetran_user;
+
+// Grant to role to user
+// Note that we are not making the looker_role a SYSADMIN,
+// but rather granting users with the SYSADMIN role to modify the looker_role
+grant role looker_role to role SYSADMIN;
 
 // Grant all privileges to role
 
 grant all privileges on database PC_FIVETRAN_DB to role PC_FIVETRAN_ROLE;
 grant all privileges on schema looker_scratch to role looker_role;
 
-// These commands were suggested by Fivetran but they DON'T RUN. Instead, grant role to user and all privileges to role.
+// Change ownership of looker_scratch table or schema to pc_fivetran_role
+grant ownership on schema looker_scratch to role pc_fivetran_role REVOKE CURRENT GRANTS;
+
+// These commands were suggested by Fivetran but they DON'T RUN. 
+// Instead, grant role to user and all privileges to role.
 GRANT CREATE ON SCHEMA salesforce TO fivetran;
 GRANT CREATE ON SCHEMA pos_inventory TO fivetran;
 
