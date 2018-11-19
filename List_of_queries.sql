@@ -1,4 +1,6 @@
 
+Descritpion: Sample queries for querying existing data
+
 Aliases:
 r   = reservation_bookreservation
 ri  = resy_info
