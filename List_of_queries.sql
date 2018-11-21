@@ -32,6 +32,19 @@ where r1.cancellation_id is null
 (select r2.user_id from resy_info r2 where r2.date_created between '2018-08-02' and '2018-10-31')
 group by 1;
 
+SELECT u.id, count(ri.id)
+FROM USER_INFO AS U
+INNER JOIN resy_info ri on ri.user_id = u.id
+INNER JOIN venue_info v on v.id = ri.venue_id
+where u.DATE_CREATED > '2017-01-01' and u.DATE_CREATED < '2017-12-31'
+and ri.date_created >= u.date_created 
+and v.location_id = 1
+//and count(ri.id)>=2
+GROUP BY u.id
+//GROUP BY "MONTH"
+//ORDER BY "MONTH"
+;
+
 2.
 "Reference table of location ids, city names, number of venues, and number of reservations"
 
@@ -162,6 +175,20 @@ where
 group by month(r.date_created), year(r.date_created)
 order by Month_Year
 ;
+
+// Using listagg to combine cells
+SELECT u.id, count(ri.id) as "resyCount" , listagg(v.location_id , ',') within group (order by ri.day)  as "venueLocations", listagg(ri.day, ', ')
+FROM USER_INFO AS U
+RIGHT JOIN resy_info ri on ri.user_id = u.id
+INNER JOIN venue_info v on v.id = ri.venue_id
+where u.DATE_CREATED > '2017-01-01' and u.DATE_CREATED < '2017-12-31'
+and ri.date_created >= u.date_created 
+GROUP BY u.id
+having "resyCount" >= 2 and "resyCount" <= 10
+and "venueLocations" RLIKE '.*[^0-9]1[^0-9].*'
+ORDER BY "resyCount" desc
+;
+
 
 "New registered User counts per month per city using the user_locations_max table"
 
