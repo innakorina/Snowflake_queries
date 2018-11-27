@@ -15,8 +15,17 @@ user_info.id matches up to resy_info.user_id
 
 ## venue_info v  
 r.venue_id = v.id  
+v.enable_for_app: identifies venues displayed in app
 
 
 ## reservation_bookreservation r  
 r.venue_id = 1278 is a test venue. Should be excluded 
 r.cancellation_id is null excludes cancelled reservations
+
+
+
+## location_info li
+li.show_in_app: identifies cities that are in-app
+li.show_on_web: identifies cities listed in website
+
+
