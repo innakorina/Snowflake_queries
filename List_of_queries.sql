@@ -108,6 +108,10 @@ order by resys."res_count"
 
 
 "Reservations per month and per city. Uses pivot to create a separate column for each city"
+// According to a Snowflake engineer, "The pivot command requires a constant value. 
+// You could try to get away with a stored procedure function that generates the columns, 
+// but thats uncharted territory."
+// A solution is to print the desired list of cities, then copy&paste into the query as an actual string.
 
 // Reservations per app city per month
 select *
@@ -135,6 +139,15 @@ for City in ('New York','Los Angeles', 'San Francisco','Washington D.C.','Austin
 ) piv
 order by Month_Year desc
 ;
+
+
+"Print list of in-app cities"
+
+select listagg(distinct '''' || li.name || '''' ,', ') 
+from location_info li
+where li.show_in_app = TRUE
+;
+
 
 "Reservations per month and per source. Uses case when to create a different column for each source"
 
@@ -293,3 +306,10 @@ r.cancellation_id is null
 //and u.foreign_type = 'resy_app'
 and r.venue_id != 1278
 ;
+
+"Setting and using a variable"
+// The set function also only takes a constant, not the multiple results from a subquery.
+set (min, max)=(40, 70);
+select $min;
+select avg(salary) from emp where age between $min and $max;
+
