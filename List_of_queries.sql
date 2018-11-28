@@ -107,13 +107,13 @@ order by resys."res_count"
 ;
 
 
-"Reservations per month and per city. Uses pivot to create a separate column for each city"
-// According to a Snowflake engineer, "The pivot command requires a constant value. 
-// You could try to get away with a stored procedure function that generates the columns, 
-// but thats uncharted territory."
-// A solution is to print the desired list of cities, then copy&paste into the query as an actual string.
+--"Reservations per month and per city. Uses pivot to create a separate column for each city"
+-- According to a Snowflake engineer, "The pivot command requires a constant value. 
+-- You could try to get away with a stored procedure function that generates the columns, 
+-- but thats uncharted territory."
+-- A solution is to print the desired list of cities, then copy&paste into the query as an actual string.
 
-// Reservations per app city per month
+-- Reservations per app city per month
 select *
 from (
 select
@@ -141,7 +141,7 @@ order by Month_Year desc
 ;
 
 
-"Print list of in-app cities"
+--"Print list of in-app cities"
 
 select listagg(distinct '''' || li.name || '''' ,', ') 
 from location_info li
@@ -149,7 +149,8 @@ where li.show_in_app = TRUE
 ;
 
 
-"Reservations per month and per source. Uses case when to create a different column for each source"
+--"Reservations per month and per source. Uses case when to create a different column for each source"
+-- Notice the difference with MySQL: SnowSQL requres "end" before closing parenthesis.
 
 select 
 date_from_parts(year(r.date_created), month(r.date_created), 1) Month_Year,
@@ -189,7 +190,7 @@ group by month(r.date_created), year(r.date_created)
 order by Month_Year
 ;
 
-// Using listagg to combine cells
+-- Using listagg to combine cells
 SELECT u.id, count(ri.id) as "resyCount" , listagg(v.location_id , ',') within group (order by ri.day)  as "venueLocations", listagg(ri.day, ', ')
 FROM USER_INFO AS U
 RIGHT JOIN resy_info ri on ri.user_id = u.id
@@ -203,9 +204,9 @@ ORDER BY "resyCount" desc
 ;
 
 
-"New registered User counts per month per city using the user_locations_max table"
+--"New registered User counts per month per city using the user_locations_max table"
 
-// What is the number of new registered users, broken out by month, in 2018 by App city?
+-- What is the number of new registered users, broken out by month, in 2018 by App city?
 
 select date_from_parts(year(u.date_created), month(u.date_created), 1) Month_Year, //count(distinct ulm.user_id) New_Users
 
@@ -228,7 +229,7 @@ order by Month_Year
 
 
 ----------------how the user location was identified---------------------------------------
-"Locations attendance for each user from user_user and their counts"
+-- Locations attendance for each user from user_user and their counts
 Create TABLE experimental.public.user_locations (User_ID Number(20,0), Location Number(20,0), resycount NUMBER(20,0)) 
 AS
 select u.id as "user ID", v.location_id as "Location", count(ri.id) as "resyCount"
@@ -242,7 +243,8 @@ ORDER BY u.id, "resyCount" desc
 
 
 
-"Selecting only a location with max number of reservations for each user= simple algorythm. In order to display all content a trick is to join a table with itself"
+-- Selecting only a location with max number of reservations for each user= simple algorythm. 
+-- In order to display all content a trick is to join a table with itself"
 create table experimental.public.user_locations_by_max (User_ID NUMBER(20,0), Location Number (20,0), resycount NUMBER(20,0)) 
 AS
 
@@ -257,7 +259,7 @@ order by user_id
 
 
 
-"Creating a table with only active users from user_info (<90 days)"
+-- Creating a table with only active users from user_info (<90 days)"
 Create TABLE experimental.public.active_users (User_ID NUMBER(20,0), resycount NUMBER(20,0)) 
 AS
 select u.id as "active_user_ID", count(r.id) as "num of res for 90 days"
@@ -268,14 +270,14 @@ GROUP BY u.id
 order by u.id
 ;
 
-"Displaying users by market"
+-- Displaying users by market"
 select ul.location,li.code, count(ul.user_id) 
 from EXPERIMENTAL.PUBLIC.USER_LOCATIONS_BY_MAX as ul
 inner join PC_FIVETRAN_DB.AURORA_CORE.LOCATION_INFO as li on li.id=ul.location
 group by ul.location, li.code//, count (ul.user_id)
 order by ul.location asc
 
-"displaying ACTIVE users by market"
+"-- Displaying ACTIVE users by market"
 select ul.location ,li.code, count(ul.user_id) as "num of active users"
 from EXPERIMENTAL.PUBLIC.USER_LOCATIONS_BY_MAX as ul
 join EXPERIMENTAL.PUBLIC.active_users au on au.user_id=ul.user_id
@@ -284,7 +286,7 @@ group by ul.location, li.code
 order by ul.location asc
 
 
-// Active users with all their completed reservation info
+--  Active users with all their completed reservation info
 
 select uu.id, r.id, li.name, v.id
 //select uu.id
@@ -307,7 +309,7 @@ r.cancellation_id is null
 and r.venue_id != 1278
 ;
 
-"Setting and using a variable"
+-- Setting and using a variable"
 // The set function also only takes a constant, not the multiple results from a subquery.
 set (min, max)=(40, 70);
 select $min;
