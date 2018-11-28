@@ -14,27 +14,35 @@ ALTER USER userName SET DISABLE_MFA = TRUE;
 
 -- Create a user and grant a role
 create role if not exists looker_role;
-alter user pc_fivetran_user set default_role = PC_FIVETRAN_ROLE;
-grant role PC_FIVETRAN_ROLE to user pc_fivetran_user;
+alter user PC_FIVETRAN_USER set default_role = PC_FIVETRAN_ROLE;
+grant role PC_FIVETRAN_ROLE to user PC_FIVETRAN_USER;
 
 -- Grant to role to user
 -- Note that we are not making the looker_role a SYSADMIN,
 -- but rather granting users with the SYSADMIN role to modify the looker_role
 grant role looker_role to role SYSADMIN;
 
--- Grant all privileges to role
+-- The following 2 commands were suggested by Fivetran but they DONT RUN. 
+-- Instead, grant role to user and all privileges to role. (see following queries)
+GRANT CREATE ON SCHEMA salesforce TO pc_fivetran_role;
+GRANT CREATE ON SCHEMA pos_inventory TO pc_fivetran_role;
 
+-- These are the commands Cade sent to fix the broken connector fivetran issue
+alter user PC_FIVETRAN_USER 
+set default_role = PC_FIVETRAN_ROLE
+grant role PC_FIVETRAN_ROLE to user PC_FIVETRAN_USER;
+-- Grant all privileges to role
 grant all privileges on database PC_FIVETRAN_DB to role PC_FIVETRAN_ROLE;
+grant all privileges on schema aurora_core to role looker_role;
+grant all privileges on schema salesforce to role looker_role;
+grant all privileges on schema pos_inventory to role looker_role;
+
 grant all privileges on schema looker_scratch to role looker_role;
 
 -- Change ownership of looker_scratch table or schema to pc_fivetran_role
-grant ownership on schema looker_scratch to role pc_fivetran_role REVOKE CURRENT GRANTS;
+grant ownership on schema looker_scratch to role PC_FIVETRAN_ROLE REVOKE CURRENT GRANTS;
 
--- These commands were suggested by Fivetran but they DONT RUN. 
--- Instead, grant role to user and all privileges to role.
-GRANT CREATE ON SCHEMA salesforce TO fivetran;
-GRANT CREATE ON SCHEMA pos_inventory TO fivetran;
-
+---------------------------------------------------
 -- Original Fivetran connector settings
 PC_FIVETRAN_DB
 Warehouse :PC_FIVETRAN_WH (X-Small)
@@ -44,8 +52,10 @@ System Role :PC_FIVETRAN_ROLE
 Role PUBLIC will be granted to the PC_FIVETRAN_ROLE
 Role PC_FIVETRAN_ROLE will be granted to the SYSADMIN role
 
+-----------------------------------------------------------
 -- Full Fivetran setup script (check user and role names, etc before running)
 -- change role to ACCOUNTADMIN for user / role steps
+-- this script can fix "Object does not exist" errors on Fivetran
 use role ACCOUNTADMIN;
 
 -- create role for fivetran
@@ -53,12 +63,14 @@ create role if not exists PC_FIVETRAN_ROLE;
 grant role PC_FIVETRAN_ROLE to role SYSADMIN;
 
 -- create a user for fivetran
+-- don't change password if it's not necessary
+-- as it may interrupt other services
 create user if not exists PC_FIVETRAN_USER;
 alter user PC_FIVETRAN_USER 
 set
-default_role = fivetran_role
+default_role = pc_fivetran_role
 default_warehouse = PC_FIVETRAN_WH
-password = 'abc123';  -- change this password AND update password in Fivetran Warehouse (Snowflake) connector
+-- password = 'abc123';  -- if password is changed, it must also be updated in Fivetran Warehouse (Snowflake) connector
 grant role PC_FIVETRAN_ROLE to user PC_FIVETRAN_USER;
 
 -- change role to SYSADMIN for warehouse / database steps
@@ -88,3 +100,7 @@ grant all privileges
 on database PC_FIVETRAN_DB
 to role PC_FIVETRAN_ROLE;
 
+-----------------------------------------------------------
+
+-- Set user default role, database, etc.
+alter user janesmith set default_warehouse = 'mywarehouse' default_namespace = `mydatabase.myschema` default_role = `myrole`;
