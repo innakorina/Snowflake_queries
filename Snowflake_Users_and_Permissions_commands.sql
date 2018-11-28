@@ -65,11 +65,11 @@ grant role PC_FIVETRAN_ROLE to role SYSADMIN;
 -- create a user for fivetran
 -- don't change password if it's not necessary
 -- as it may interrupt other services
+-- fixed "binlog processing" error by setting default warehouse
+
 create user if not exists PC_FIVETRAN_USER;
-alter user PC_FIVETRAN_USER 
-set
-default_role = pc_fivetran_role
-default_warehouse = PC_FIVETRAN_WH
+alter user PC_FIVETRAN_USER set default_role = pc_fivetran_role;
+alter user PC_FIVETRAN_USER set default_warehouse = 'PC_FIVETRAN_WH';
 -- password = 'abc123';  -- if password is changed, it must also be updated in Fivetran Warehouse (Snowflake) connector
 grant role PC_FIVETRAN_ROLE to user PC_FIVETRAN_USER;
 
