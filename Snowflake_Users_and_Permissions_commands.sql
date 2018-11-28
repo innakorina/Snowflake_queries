@@ -30,7 +30,7 @@ grant all privileges on schema looker_scratch to role looker_role;
 // Change ownership of looker_scratch table or schema to pc_fivetran_role
 grant ownership on schema looker_scratch to role pc_fivetran_role REVOKE CURRENT GRANTS;
 
-// These commands were suggested by Fivetran but they DON'T RUN. 
+// These commands were suggested by Fivetran but they DONT RUN. 
 // Instead, grant role to user and all privileges to role.
 GRANT CREATE ON SCHEMA salesforce TO fivetran;
 GRANT CREATE ON SCHEMA pos_inventory TO fivetran;
