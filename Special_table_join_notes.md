@@ -4,7 +4,7 @@ Use "Preview" to check format is displaying as you want it before committing cha
 
 ## user_user u
 user_user.id matches up to reservation_bookreservation.user_id  
-user_user.id do not match with resy_info.user_id  
+user_user.id do not match with resy_info.user_id (They did match before 2017)
 user_user.foreign_id matches up to resy_info_user_id  
 
 ## user_info ui  
