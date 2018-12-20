@@ -7,5 +7,7 @@ user records are explained carefully:
 https://docs.google.com/presentation/d/1MmQvnB5vPwSwSMu1FvKCB03Ow-7P910B0Zpy2bGGzzU/edit#slide=id.g4a2f56f9ac_0_24
 
 
-
+#in order to extract only registered useers and their reservations from user_user and reservation_bookreservation use these queries:
+Snowflake_queries/get_registered_users
+      
 
