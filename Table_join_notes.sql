@@ -7,11 +7,11 @@ user_user.id matches up to reservation_bookreservation.user_id
 user_user.id do not match with resy_info.user_id (They did match before 2017)
 user_user.foreign_id matches up to resy_info_user_id  
 
-## user_info u  
+## user_info u  (sometimes ui) 
 user_info.id matches up to resy_info.user_id  
 
 
-# qyery to select only register users in user_user
+# query to select only register users in user_user
 select  uu.ID as uu_id, uu.foreign_id as uu_foreign_ID, u.ID as u_id,uu.mobile_number, u.date_created
 FROM USER_info AS u
 inner join user_user as uu on u.ID=uu.foreign_id
