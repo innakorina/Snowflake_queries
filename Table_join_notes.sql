@@ -11,8 +11,7 @@ user_user.foreign_id matches up to resy_info_user_id
 user_info.id matches up to resy_info.user_id  
 
 
-#--------------- most important queries we will be using a lot-------------------
-# select only register users in user_user
+# qyery to select only register users in user_user
 select  uu.ID as uu_id, uu.foreign_id as uu_foreign_ID, u.ID as u_id,uu.mobile_number, u.date_created
 FROM USER_info AS u
 inner join user_user as uu on u.ID=uu.foreign_id
@@ -32,7 +31,7 @@ r.cancellation_id is null excludes cancelled reservations
 
 
 
-# select only reservations from registered users from reservation_bookreservation, excluding cancellations
+# query to select only reservations from registered users from reservation_bookreservation, excluding cancellations
 SELECT uu.id as "uu.user_id",rr.service_date as DAY, v.location_id
 FROM USER_user AS uu
 inner join user_info as u on u.ID=uu.foreign_ID
