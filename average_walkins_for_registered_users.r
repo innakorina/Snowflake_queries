@@ -1,5 +1,15 @@
+//getting records for registered users about their total walkins and non-walkins
+SELECT uu.id as user_id, rr.is_walkin, count(user_ID)
+from user_user as uu
+inner join user_info as u on u.ID = uu.foreign_ID
+inner JOIN reservation_bookreservation rr on rr.user_id = uu.id
+where uu.foreign_type='resy_app'
+and rr.CANCELLATION_ID is null
+GROUP BY uu.id, rr.is_walkin
+ORDER BY uu.id asc
 
 
+#In R 
 
 input_1<-fread("1.csv", stringsAsFactors=F)
 input_2<-fread("2.csv", stringsAsFactors=F)
