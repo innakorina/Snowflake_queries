@@ -117,8 +117,12 @@ copy into @~/unload/ from mytable file_format = (format_name = 'my_csv_unload_fo
 #Unloading Data to a Table Stage. Note that the @% character combination identifies a table stage
 copy into @%mytable/unload/ from mytable file_format = (format_name = 'my_csv_unload_format' compression = none);  
   
-3. Use the LIST command to view a list of files that have been unloaded to the stage:
+3. Use the SHOW and LIST commands view stages and list of files that have been unloaded to the stage:
 
+SHOW STAGES [ LIKE '<pattern>' ] [ IN { ACCOUNT | [ DATABASE ] <db_name> | [ SCHEMA ] <schema_name> } ]
+#Example:
+SHOW STAGES  IN  DATABASE  PC_FIVETRAN_DB;
+#display all files in a stage
 list @%mytable;
 
 # result showing table stage from last example
@@ -127,6 +131,9 @@ list @%mytable;
 |-----------------------+------+----------------------------------+-------------------------------|
 | unload/data_0_0_0.csv |   96 | 29918f18bcb35e7b6b628ca41024236c | Mon, 11 Sep 2017 17:45:20 GMT |
 +-----------------------+------+----------------------------------+-------------------------------+
+
+
+
 
 
 #the staged file is better be removed later:
