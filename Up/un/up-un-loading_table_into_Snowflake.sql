@@ -128,8 +128,11 @@ list @%mytable;
 | unload/data_0_0_0.csv |   96 | 29918f18bcb35e7b6b628ca41024236c | Mon, 11 Sep 2017 17:45:20 GMT |
 +-----------------------+------+----------------------------------+-------------------------------+
 
-4. Use GET command to download the generated file(s) from the table stage to your local machine. 
 
+#the staged file is better be removed later:
+REMOVE internalStage [ PATTERN = '<regex_pattern>' ]
+
+4. From the terminal (SnowSQL) Use GET command to download the generated file(s) from the table stage to your local machine. 
 
 For example:
 get @%mytable/unload/data_0_0_0.csv file:///data/unload;
