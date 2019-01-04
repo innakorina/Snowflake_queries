@@ -38,13 +38,14 @@ GROUP BY uu.id, uu.foreign_id;
 
 #-----------------------------------------------getting reservations--------------------------------------------
 
-# select only reservations from registered users from reservation_bookreservation, excluding cancellations (for my code i filtered after 2016)
-SELECT uu.id as "uu.user_id",rr.service_date as DAY, v.location_id
+# select only reservations from registered users from reservation_bookreservation, excluding cancellations
+SELECT uu.id as "uu.user_id",uu.foreign_id as "uu.foreign_id",u.date_created, rr.date_created, rr.service_date as DAY,rr.TIME_SLOT, v.ID as venue_ID, v.neighborhood,v.location_id, rr.NUM_Seats,rr.SOURCE_ID
 FROM USER_user AS uu
 inner join user_info as u on u.ID=uu.foreign_ID
 inner JOIN reservation_bookreservation rr on rr.user_id = uu.id
 INNER JOIN venue_info v on v.id = rr.venue_id
+//where rr.service_date > '2016-01-01'
 and uu.foreign_type='resy_app'
 and rr.CANCELLATION_ID is null
-GROUP BY uu.id,DAY, v.location_id, 
-ORDER BY uu.id asc, day desc;
+GROUP BY uu.id,DAY,uu.foreign_id,u.date_created, rr.date_created, rr.TIME_SLOT, v.ID, v.location_id, v.neighborhood,rr.NUM_Seats, rr.SOURCE_ID
+ORDER BY uu.id desc, day desc;
