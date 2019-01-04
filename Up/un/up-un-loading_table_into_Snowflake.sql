@@ -142,8 +142,7 @@ REMOVE internalStage [ PATTERN = '<regex_pattern>' ]
 4. From the terminal (SnowSQL) Use GET command to download the generated file(s) from the table stage to your local machine. 
 
 For example:
-get @%mytable/unload/data_0_0_0.csv file:///data/unload;
-
+get @PC_FIVETRAN_DB.AURORA_CORE.inna_stagetest/data_0_6_0.csv file:////Users/innakorzhouska/Documents;
 
 
 
@@ -159,13 +158,14 @@ create or replace temporary stage inna_stage
   file_format = my_csv_format;  
 
 
-copy into @inna_stage/1 from USER_LOCATIONS_RAW file_format = (format_name = 'my_csv_format' compression = none); 
-copy into @inna_stage/2 from USER_LOCATIONS_RAW file_format = (TYPE = CSV null_if=('') field_optionally_enclosed_by='"' compression = none); 
-
-list @inna_stage;
+copy into @inna_stagetest from USER_LOCATIONS_RAW file_format = (format_name = 'my_csv_format' compression = none); 
+copy into @inna_stagetest from USER_LOCATIONS_RAW file_format = (TYPE = CSV null_if=('') field_optionally_enclosed_by='"' compression = none); 
 
 
+SHOW STAGES  IN  DATABASE  PC_FIVETRAN_DB;
+list @inna_stagetest;
 
+INNA#(no warehouse)@PC_FIVETRAN_DB.AURORA_CORE>get @PC_FIVETRAN_DB.AURORA_CORE.inna_stagetest/data_0_6_0.csv file:////Users/innakorzhouska/Documents;
 
 
 
