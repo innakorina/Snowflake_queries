@@ -1,4 +1,4 @@
-#---------------2 most important queries we will be using a lot-------------------
+#---------------Basic queries we will be using a lot for pulling registered users and their reservations-------------------
 # select only register users in user_user
 select  uu.ID as uu_id, uu.foreign_id as uu_foreign_ID, u.ID as u_id,uu.mobile_number, u.date_created
 FROM USER_info AS u
@@ -6,9 +6,7 @@ inner join user_user as uu on u.ID=uu.foreign_id
 where Uu.foreign_type = 'resy_app'
 order by u.date_created asc;
 
-#for 2018-12-12 the results is
-
-
+#for 2018-12-20 the results is 4,716,560
 
 #--------------If join with reservation table--INTERESTING FACTS!!!!!!-----------------------------------------------------------------------------------
 
@@ -21,10 +19,9 @@ inner join user_info as u on u.ID=uu.foreign_id
 inner JOIN reservation_bookreservation rr on rr.user_id = uu.id
 where uu.foreign_type='resy_app'
 GROUP BY uu.id, uu.foreign_id
-ORDER BY uu.id asc
-;
+ORDER BY uu.id asc;
 
-#for 2018-12-12 the results is
+#for 2018-12-20 the results is 4,191,497
 
 #2)number of registered users who kept the reservations is even lower
 
@@ -35,10 +32,9 @@ inner join user_info as u on u.ID=uu.foreign_id
 inner JOIN reservation_bookreservation rr on rr.user_id = uu.id
 where uu.foreign_type='resy_app'
 and rr.CANCELLATION_ID is null
-GROUP BY uu.id, uu.foreign_id
+GROUP BY uu.id, uu.foreign_id;
 
-
-#for 2018-12-12 the results is
+#for 2018-12-20 the results is  3,571,028 ---> sie of the user locations table
 
 #-----------------------------------------------getting reservations--------------------------------------------
 
@@ -52,6 +48,3 @@ and uu.foreign_type='resy_app'
 and rr.CANCELLATION_ID is null
 GROUP BY uu.id,DAY, v.location_id, 
 ORDER BY uu.id asc, day desc;
-
-ORDER BY uu.id asc
-;
