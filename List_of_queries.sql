@@ -315,3 +315,28 @@ set (min, max)=(40, 70);
 select $min;
 select avg(salary) from emp where age between $min and $max;
 
+                                                                                      
+-- Cumulative sum or count using "over" and row specification
+-- Note that order by is required in the window_frame statement
+                                                                                      
+// Users to date, one year per column                                                                                     
+select td.month
+, sum(case when td.year='2014' then td.users end) "2014"
+, sum(case when td.year='2015' then td.users end) "2015"
+, sum(case when td.year='2016' then td.users end) "2016"
+, sum(case when td.year='2017' then td.users end) "2017"
+, sum(case when td.year='2018' then td.users end) "2018"
+, sum(case when td.year='2019' then td.users end) "2019"
+from  
+( 
+select year(ui.date_created) year, month(ui.date_created) month
+, count(ui.id) "month-to-month users"
+, sum(count(ui.id)) over (order by year, month RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) users
+from "PC_FIVETRAN_DB"."AURORA_CORE"."USER_INFO" ui
+where year(ui.date_created) > '2013'
+group by year(ui.date_created), month(ui.date_created)
+order by year(ui.date_created), month(ui.date_created)
+) td
+group by td.month
+order by td.month
+;
