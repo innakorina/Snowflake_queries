@@ -9,14 +9,21 @@ Create table
 Ex:
 create or replace table count_example(i int, j int);
 
+Clone table
+CREATE TABLE PC_FIVETRAN_DB.AURORA_CORE.user_locations CLONE PC_FIVETRAN_DB.PUBLIC.user_locations;
+
 Remove table:
 drop table count_example
 
 Rename table:
 alter table active_users_info RENAME TO active_users
 
-Clone table
-CREATE TABLE PC_FIVETRAN_DB.AURORA_CORE.user_locations CLONE PC_FIVETRAN_DB.PUBLIC.user_locations;
+
+Update table:
+update t1
+  set t1.number_column = t1.number_column + t2.number_column, t1.text_column = 'ASDF'
+  from t2
+  where t1.key_column = t2.t1_key and t1.number_column < 10;
 
 
 https://docs.snowflake.net/manuals/sql-reference/sql/create-table.html
