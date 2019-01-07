@@ -151,7 +151,7 @@ create or replace file format my_csv_format
   TYPE = CSV 
   field_optionally_enclosed_by='"'
   field_delimiter = ','
-  TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS.FF3 TZHTZM'
+  TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS'
 ;
   
 create or replace temporary stage inna_stage
