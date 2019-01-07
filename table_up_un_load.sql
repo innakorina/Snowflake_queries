@@ -149,18 +149,22 @@ get @PC_FIVETRAN_DB.AURORA_CORE.inna_stagetest/data_0_6_0.csv file:////Users/inn
 ------------------------Steps that work:
 create or replace file format my_csv_format
   TYPE = CSV 
-  null_if=('') 
   field_optionally_enclosed_by='"'
-  field_delimiter = '|'
+  field_delimiter = ','
+  TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS.FF3 TZHTZM'
 ;
   
 create or replace temporary stage inna_stage
   file_format = my_csv_format;  
 
 
-copy into @inna_stagetest from USER_LOCATIONS_RAW file_format = (format_name = 'my_csv_format' compression = none); 
-copy into @inna_stagetest from USER_LOCATIONS_RAW file_format = (TYPE = CSV null_if=('') field_optionally_enclosed_by='"' compression = none); 
-
+copy into @inna_stagetest5 from USER_LOCATIONS_RAW 
+    file_format = (format_name = 'my_csv_format' compression = none)
+    HEADER = TRUE
+         OVERWRITE = TRUE
+         //SINGLE = TRUE
+         MAX_FILE_SIZE =167772160; 
+         
 
 SHOW STAGES  IN  DATABASE  PC_FIVETRAN_DB;
 list @inna_stagetest;
