@@ -23,10 +23,24 @@ INNA#(no warehouse)@EXPERIMENTAL.PUBLIC>put file:///Users/innakorzhouska/Documen
 
 2. In the Snowflake create a table and insert the data from the previously uploaded stage:
 
-create table PC_FIVETRAN_DB.AURORA_CORE.user_location (User_ID NUMBER(20,0), Loc_primary NUMBER(20,0), Count_primary NUMBER(20,0), weekends NUMBER(20,0), weekdays NUMBER(20,0), score_primary NUMBER(20,0), loc_secondary NUMBER(20,0), Count_secondary NUMBER(20,0), score_secondary NUMBER(20,0));
-COPY INTO PC_FIVETRAN_DB.AURORA_CORE.user_location from '@PC_FIVETRAN_DB.PUBLIC.EXP_STAGE/user_locations.csv.gz' file_format = (compression ='gzip');
 
-alter table user_locations alter user_ID set data type NUMBER(20,0);
+//create new table
+create table PC_FIVETRAN_DB.AURORA_CORE.user_locations_01_01_19 (User_ID NUMBER(20,0),reserv_total NUMBER(20,0), Loc_1 NUMBER(20,0), reserv_1_total NUMBER(20,0), weekends NUMBER(20,0), weekdays NUMBER(20,0),
+                                                                 score_1 NUMBER(20,0), frequent_neighborhood VARCHAR(16777216), frequent_venue NUMBER(20,0), frequent_num_of_seats NUMBER(20,0), 
+                                                                 frequent_source_ID VARCHAR(16777216), loc_2 NUMBER(20,0), reserv_2_total NUMBER(20,0), score_2 NUMBER(20,0),flag VARCHAR(16777216),
+                                                                 segment VARCHAR(16777216) ,activity VARCHAR(16777216), reserv_per_year NUMBER(20,0), loyalty_level VARCHAR(16777216), locations VARCHAR(16777216),
+                                                                switched_percentage NUMBER(20,0), frequent_delta NUMBER(20,0));
+                                                              
+//create upload file format
+create or replace file format my_csv_format_upload
+  field_optionally_enclosed_by='"'
+ // NULL_IF = ('\\N', 'NULL', 'NUL', '')
+  field_delimiter = ','
+  RECORD_DELIMITER ='\n'
+;
+//uploading staged file  
+COPY INTO PC_FIVETRAN_DB.AURORA_CORE.user_locations_01_01_19 from '@PC_FIVETRAN_DB.PUBLIC.EXP_STAGE/user_locations-01-01-19.csv.gz' file_format = (format_name=my_csv_format_upload compression ='gzip',skip_header = 1,  ERROR_ON_COLUMN_COUNT_MISMATCH = False );
+
 
 Warnings!: make sure the header is removed, there is no NAs in the data, and the csv format has the same number of the columns (the filewriting function doesn’t create a count column) 
 
