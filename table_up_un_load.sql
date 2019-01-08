@@ -25,7 +25,7 @@ INNA#(no warehouse)@EXPERIMENTAL.PUBLIC>put file:///Users/innakorzhouska/Documen
 
 
 //create new table
-create table PC_FIVETRAN_DB.AURORA_CORE.user_locations_01_01_19 (User_ID NUMBER(20,0),reserv_total NUMBER(20,0), Loc_1 NUMBER(20,0), reserv_1_total NUMBER(20,0), weekends NUMBER(20,0), weekdays NUMBER(20,0),
+create table PC_FIVETRAN_DB.AURORA_CORE.user_locations (User_ID NUMBER(20,0),reserv_total NUMBER(20,0), Loc_1 NUMBER(20,0), reserv_1_total NUMBER(20,0), weekends NUMBER(20,0), weekdays NUMBER(20,0),
                                                                  score_1 NUMBER(20,0), frequent_neighborhood VARCHAR(16777216), frequent_venue NUMBER(20,0), frequent_num_of_seats NUMBER(20,0), 
                                                                  frequent_source_ID VARCHAR(16777216), loc_2 NUMBER(20,0), reserv_2_total NUMBER(20,0), score_2 NUMBER(20,0),flag VARCHAR(16777216),
                                                                  segment VARCHAR(16777216) ,activity VARCHAR(16777216), reserv_per_year NUMBER(20,0), loyalty_level VARCHAR(16777216), locations VARCHAR(16777216),
@@ -39,14 +39,19 @@ create or replace file format my_csv_format_upload
   RECORD_DELIMITER ='\n'
 ;
 //uploading staged file  
-COPY INTO PC_FIVETRAN_DB.AURORA_CORE.user_locations_01_01_19 from '@PC_FIVETRAN_DB.PUBLIC.EXP_STAGE/user_locations-01-01-19.csv.gz' file_format = (format_name=my_csv_format_upload compression ='gzip',skip_header = 1,  ERROR_ON_COLUMN_COUNT_MISMATCH = False );
+COPY INTO PC_FIVETRAN_DB.AURORA_CORE.user_locations from '@PC_FIVETRAN_DB.PUBLIC.EXP_STAGE/user_locations.csv.gz' file_format = (format_name=my_csv_format_upload compression ='gzip',skip_header = 1,  ERROR_ON_COLUMN_COUNT_MISMATCH = False );
 
+                                                                                                                        //testing the table:
+select ul.USER_ID 
+from user_locations as ul
+inner join PC_FIVETRAN_DB.AURORA_CORE.USER_INFO as ui on ui.ID=ul.USER_ID
+;
 
 Warnings!: make sure the header is removed, there is no NAs in the data, and the csv format has the same number of the columns (the filewriting function doesn’t create a count column) 
 
 
 ______________________________________________________________________________________________________________________
------------------Unloading table from Snowflake to external locations
+----------------------------Unloading table from Snowflake to external locations--------------------------------------
 
 Steps:
 1. Create stage if doesnt exist. 
