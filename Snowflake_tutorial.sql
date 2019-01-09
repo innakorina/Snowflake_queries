@@ -624,7 +624,15 @@ order by li.id
 To make it work, change group by li.id to group by li.id, li.name.
 
 
+14. REGEX
+https://www.postgresql.org/docs/9.3/functions-matching.html
+https://www.oreilly.com/library/view/mysql-cookbook/0596001452/ch04s08.html
 
+       -- 1st syntax
+RLIKE( <subject> , <pattern> [ , <parameters> ] )
+
+-- 2nd syntax
+<subject> RLIKE <pattern>
        
        
        
