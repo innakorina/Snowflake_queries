@@ -166,7 +166,8 @@ JOIN sub2 ON tr.terminalid = sub2.terminalid;
 
 
 
-8. Count
+8. Aggregates:
+//====Count======
 https://docs.snowflake.net/manuals/sql-reference/functions/count.html
 
 Ex:
@@ -187,6 +188,30 @@ select i, count(*), count(j) from count_example group by i;
 |   12 |        1 |        1 |
 | NULL |        2 |        2 |
 +------+----------+----------+
+
+
+
+//===========Sum=========
+//Ex:
+select dayname(r.date_booked) string$Day,
+    sum(r.num_seats) number$Total_Covers,
+    sum(case when r.source_id like 'Airbnb' then r.num_seats end) number$AirBnB_Covers,
+    sum(case when r.source_id like 'Instagram' then r.num_seats end) number$Instagram_Covers,
+    sum(case when r.source_id like '%facebook'  then r.num_seats end) number$Facebook_Covers,
+    sum(case when r.source_id like '%import%'  then r.num_seats end) number$Import_Covers,
+    sum(case when r.source_id like 'resy.com' then r.num_seats  end) number$Resycom_Covers,
+    sum(case when r.source_id like 'resy_app'  then r.num_seats end) number$Resy_App_Covers,
+    sum(case when r.SOURCE_ID not like 'resy_os' and r.source_id not like 'resy_app' and r.source_id not like 'resy.com' and r.source_id not like 'Airbnb' and r.source_id not like 'Instagram' and r.source_id not like '%facebook' and r.source_id not like '%import%' then r.num_seats end) number$Widget_Covers,
+    sum(case when r.source_id like 'resy.com' or  r.source_id like 'resy_app' then r.num_seats end)/sum(r.num_seats) percentage$Percent_Resy_Platform
+from reservation_bookreservation r
+ inner join reservation_bookreservationstatus s on r.id = s.reservation_id and s.status_id != 2
+ join venue_info v on v.id=r.venue_id and v.is_active=1
+where
+r.cancellation_id is null
+ and r.venue_id != 1278
+ and month(r.date_booked) = 8
+ and year(r.date_booked) = 2018
+group by 1;
 
 8.Dense_Rank ranking the values from certain field
 
@@ -502,6 +527,24 @@ order by Month_Year desc
 ;
                      
                      
+13. Listagg
+//Ex. (doesnt work:( but see application of listagg)             
+SELECT uu.id as "user ID", v.location_id as "Location", count(r.id) as "resyCount", listagg("resyCount", ',') within group (order by ri.day desc)  as "venueLocations", listagg(ri.day, ', ') within group (order by ri.day desc) as date_of_booking 
+//sum(case when r.source_id like '%facebook'  then r.num_seats end) number$Facebook_Covers,
+
+ //sum(case when r.source_id like '%facebook'  then r.num_seats end) number$Facebook_Covers,
+
+FROM USER_user AS uu
+JOIN reservation_bookreservation r on r.user_id = uu.id
+left outer JOIN venue_info v on v.id = r.venue_id
+//where ri.day > '2017-01-01'
+//and ri.day >= u.date_created 
+GROUP BY uu.id, v.location_id
+//having "user ID" <= 1000000
+// "venueLocations" RLIKE'.*[^0-9]1[^0-9].*'
+ORDER BY uu.id, "resyCount" desc
+;             
+             
 //===================================================================================================================
 
 Tricky differences between Snowflake and Querious:
