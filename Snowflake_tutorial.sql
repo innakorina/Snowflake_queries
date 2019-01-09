@@ -18,6 +18,14 @@ drop table count_example
 Rename table:
 alter table active_users_info RENAME TO active_users
 
+Modify a table- columns:
+1) drop a column
+alter table t1 modify c2 drop default;
+2) chnage type of the column (only can increase the length)
+alter table t1 alter c3 set data type varchar(50);
+
+//used https://docs.snowflake.net/manuals/sql-reference/sql/alter-table-column.html#syntax
+
 
 Update table:
 update t1
@@ -92,12 +100,17 @@ select * from count_example;
 7. Subqueries
 
 https://docs.snowflake.net/manuals/sql-reference/operators-subquery.html
-This query shows an uncorrelated subquery in a WHERE clause. The subquery gets the per capita GDP of Brazil, and the outer query selects all the jobs (in any country) that pay less than the per-capita GDP of Brazil. The subquery is uncorrelated because the value that it returns does not depend upon any column of the outer query. The subquery only needs to be called once during the entire execution of the outer query.
+                                                                                       
+//======WHERE=====
+                                                                                       
+//Ex.1
+//This query shows an uncorrelated subquery in a WHERE clause. The subquery gets the per capita GDP of Brazil, and the outer query selects all the jobs (in any country) that pay less than the per-capita GDP of Brazil. The subquery is uncorrelated because the value that it returns does not depend upon any column of the outer query. The subquery only needs to be called once during the entire execution of the outer query.
 select p.name, p.annual_wage, p.country
   from pay as p
   where p.annual_wage < (select per_capita_gdp
                            from international_gdp
                            where name = 'Brazil');
+//Ex. 2                                                                                       
 This shows a correlated subquery in a WHERE clause. This query lists jobs where the annual pay of the job is less than the per-capita GDP in that country. This subquery is correlated because it is called once for each row in the outer query and is passed a value (p.country (country name)) from that row.
 select p.name, p.annual_wage, p.country
   from pay as p
@@ -105,6 +118,51 @@ select p.name, p.annual_wage, p.country
                            from international_gdp i
                            where p.country = i.name);
 
+//Ex.3
+select goats.*, n.*, ns.*  
+from (select uu.id, uu.date_created  
+      from user_user as uu
+      inner join user_info as u on u.ID=uu.foreign_ID
+      left outer JOIN reservation_bookreservation rr on rr.user_id = uu.id
+      where uu.foreign_type='resy_app'
+      and rr.user_id is NULL) as goats
+inner join "PC_FIVETRAN_DB"."AURORA_CORE"."NOTIFY_AVAIL_CONFIG" as n on n.GLOBAL_user_ID=goats.ID
+inner join PC_FIVETRAN_DB.AURORA_CORE.NOTIFY_NOTIFYSTATUS as ns on ns.ID=n.ID;
+
+
+//=====WITH========
+
+  <subquery_name1> [ ( <col_list> ) ] AS ( SELECT ...  )
+  [ , <subquery_name2> [ ( <col_list> ) ] AS ( SELECT ...  ) [ , ... ] ]
+SELECT ...
+FROM ...
+[ ... ]
+
+//Ex. #1:
+with
+  albums_1976 as (select * from music_albums where album_year = 1976)
+select album_name from albums_1976 order by album_name;
+
+
+//Ex. #2
+with sub1 as (
+  select 
+    terminalid, 
+    first_value(id) over (partition by terminalid order by d desc) id
+  from terminal 
+),
+-- Now, make sure there's only one per terminalid id
+sub2 as (
+  select 
+    terminalid, 
+    any_value(id) id
+  from sub1
+  group by terminalid
+)
+-- Now use that result
+select tr.ID, sub2.id
+FROM "Transaction" tr
+JOIN sub2 ON tr.terminalid = sub2.terminalid;
 
 
 
@@ -387,7 +445,64 @@ https://docs.snowflake.net/manuals/sql-reference/intro-summary-sql.html
 
 
 
+                     
+                     
+11. View
+                     
+//This shows how to use views to reduce the complexity of the previous example (as in the previous example, this does not use a WITH clause):
 
+ -- We can reduce duplicate code in the preceding query by creating a view(s):
+create or replace view view_musicians_in_bands as
+select distinct musicians.musician_id, musician_name, band_name
+ from musicians inner join musicians_and_albums inner join music_albums inner join music_bands
+ where musicians.musician_id = musicians_and_albums.musician_id
+   and musicians_and_albums.album_id = music_albums.album_id
+   and music_albums.band_id = music_bands.band_id
+order by musician_id
+  ;
+
+-- With this view, we can re-write our original query as:
+select musician_id, musician_name
+from view_musicians_in_bands where band_name = 'Santana'
+intersect
+select musician_id, musician_name
+from view_musicians_in_bands where band_name = 'Journey'
+order by musician_id;
+The output of the previous query is:
+
++-------------+---------------+
+| MUSICIAN_ID | MUSICIAN_NAME |
++=============+===============+
+|         305 | Greg Rollie   |
++-------------+---------------+
+|         306 | Neil Schon    |
++-------------+---------------+
+                     
+       
+                     
+12. Pivot
+                     
+//reservations by month by city(?)
+select *
+from   (select
+        month(r.date_created) Month, year(r.date_created) Year, date_from_parts(Year, Month, 1) Month_Year, li.name City, count(distinct r.user_id) Total_Users
+        from reservation_bookreservation r
+        inner join reservation_bookreservationstatus s on r.id = s.reservation_id and s.status_id != 2
+        join venue_info v on v.id=r.venue_id and v.is_active=1
+        join location_info li on li.id=v.location_id
+        where r.cancellation_id is null
+        and r.venue_id != 1278
+        and City in ('New York','Los Angeles', 'San Francisco','Washington D.C.','Austin', 'London')
+        group by Month, Year, City
+        order by Month_Year) g
+pivot
+(sum(g.Total_Users)
+for City in ('New York','Los Angeles', 'San Francisco','Washington D.C.','Austin', 'London')) piv
+order by Month_Year desc
+;
+                     
+                     
+//===================================================================================================================
 
 Tricky differences between Snowflake and Querious:
 
