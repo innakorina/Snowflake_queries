@@ -505,12 +505,11 @@ The output of the previous query is:
                      
        
                      
-12. Pivot
+12. Pivot (and nested query)
                      
-//reservations by month by city(?)
+//new reservations by month by city(?)
 select *
-from   (select
-        month(r.date_created) Month, year(r.date_created) Year, date_from_parts(Year, Month, 1) Month_Year, li.name City, count(distinct r.user_id) Total_Users
+from   (select month(r.date_created) Month, year(r.date_created) Year, date_from_parts(Year, Month, 1) Month_Year, li.name City, count(distinct r.user_id) Total_Users
         from reservation_bookreservation r
         inner join reservation_bookreservationstatus s on r.id = s.reservation_id and s.status_id != 2
         join venue_info v on v.id=r.venue_id and v.is_active=1
@@ -520,9 +519,7 @@ from   (select
         and City in ('New York','Los Angeles', 'San Francisco','Washington D.C.','Austin', 'London')
         group by Month, Year, City
         order by Month_Year) g
-pivot
-(sum(g.Total_Users)
-for City in ('New York','Los Angeles', 'San Francisco','Washington D.C.','Austin', 'London')) piv
+pivot (sum(g.Total_Users) for City in ('New York','Los Angeles', 'San Francisco','Washington D.C.','Austin', 'London')) piv
 order by Month_Year desc
 ;
                      
