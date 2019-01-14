@@ -340,3 +340,117 @@ order by year(ui.date_created), month(ui.date_created)
 group by td.month
 order by td.month
 ;
+
+      
+      
+      
+      
+//locating select members in user_user                                                                                                       
+select sm.first_name,sm.last_name, uu.ID
+from user_user as uu
+inner join PC_FIVETRAN_DB.Public.select_clean_phone as sm on sm.email = uu.em_address                                                                                                    
+;
+
+
+//select members' reservations- all times, including cancellations                                                                                                       
+select sm.first_name,sm.last_name, rr.user_ID, rr.date_booked, rr.venue_ID, rr.price, v.average_bill_size, v.cuisine_detail_id 
+from user_user as uu
+inner join PC_FIVETRAN_DB.Public.select_members as sm on sm.email = uu.em_address
+inner join reservation_bookreservation as rr on rr.user_ID=uu.ID                                                                                                      
+inner join venue_info as v on v.ID=rr.venue_ID;
+
+
+//select members' reservations in in 2018 year, excluding cancellations- will be using this query  as foundation to do further queries
+select sm.first_name,sm.last_name,sm.email,rr.user_ID, count(rr.user_ID) 
+from user_user as uu
+inner join PC_FIVETRAN_DB.Public.select_members as sm on sm.email = uu.em_address
+inner join reservation_bookreservation as rr on rr.user_ID=uu.ID                                                                                                      
+inner join venue_info as v on v.ID=rr.venue_ID
+where rr.date_booked <'2019-01-01'
+and rr.date_booked >='2018-01-01' 
+and rr.cancellation_ID is Null
+group by sm.first_name,sm.last_name,sm.email,rr.user_ID
+order by sm.last_name
+;
+
+
+//venues  booked by select members by city
+select li.name,v.name, count(v.name)
+from reservation_bookreservation as rr
+join (select sm.first_name,sm.last_name,sm.email,uu.id
+        from user_user as uu
+        inner join PC_FIVETRAN_DB.Public.select_members as sm on sm.email = uu.em_address) as sm on rr.user_ID=sm.ID                                                                                                  
+inner join venue_info as v on v.ID=rr.venue_ID 
+inner join location_info as li on li.id=v.location_id
+where rr.date_booked <'2019-01-01'
+and rr.date_booked >='2018-01-01'
+and rr.cancellation_ID is Null 
+group by li.name, v.name
+order by li.name, count(v.name) desc
+;
+
+#----------select members queries
+//select members's total resies and total_spendings
+select sm.*, res.total_resies, res.total_spent
+from PC_FIVETRAN_DB.Public.select_members as sm 
+join (select sm.first_name,sm.last_name,sm.email,rr.user_ID,count(rr.user_ID) as total_resies, sum(v.average_bill_size) as total_spent//, sum(rr.price)//,rr.date_booked,//rr.venue_ID 
+from user_user as uu
+inner join PC_FIVETRAN_DB.Public.select_members as sm on sm.email = uu.em_address
+inner join reservation_bookreservation as rr on rr.user_ID=uu.ID                                                                                                      
+inner join venue_info as v on v.ID=rr.venue_ID
+where rr.date_booked <'2019-01-01'
+and rr.date_booked >='2018-01-01'
+and rr.cancellation_ID is Null  
+group by sm.first_name,sm.last_name,sm.email,rr.user_ID) as res on res.email=sm.email;
+  
+     
+
+//select members's notifies
+select sm.first_name, sm.last_name, count(n.id)
+from "PC_FIVETRAN_DB"."AURORA_CORE"."NOTIFY_AVAIL_CONFIG" as n
+join (select sm.first_name,sm.last_name,sm.email,uu.id
+        from user_user as uu
+        inner join PC_FIVETRAN_DB.Public.select_members as sm on sm.email = uu.em_address) as sm on n.Global_user_id=sm.ID                                                                                                  
+inner join venue_info as v on v.ID=n.venue_ID 
+group by sm.first_name, sm.last_name
+order by sm.first_name
+;
+
+
+//combined-showing only name, ID+ total resies, total_spendings and notifies
+select s.first_name, s.last_name, res.user_id, res.total_resies, res.total_spent, count(n.id) as notifies
+from (select sm.first_name,sm.last_name,sm.email,rr.user_ID,count(rr.user_ID) as total_resies, sum(v.average_bill_size) as total_spent//, sum(rr.price)//,rr.date_booked,//rr.venue_ID 
+        from user_user as uu
+        inner join PC_FIVETRAN_DB.Public.select_members as sm on sm.email = uu.em_address
+        inner join reservation_bookreservation as rr on rr.user_ID=uu.ID                                                                                                      
+        inner join venue_info as v on v.ID=rr.venue_ID
+        where rr.date_booked <'2019-01-01'
+        and rr.date_booked >='2018-01-01'
+        and rr.cancellation_ID is Null  
+        group by sm.first_name,sm.last_name,sm.email,rr.user_ID) as res
+join PC_FIVETRAN_DB.Public.select_members as s on s.email = res.email
+left outer join "PC_FIVETRAN_DB"."AURORA_CORE"."NOTIFY_AVAIL_CONFIG"as n on n.Global_user_id=res.user_ID
+group by s.first_name, s.last_name,res.user_ID,res.total_resies, res.total_spent
+order by s.last_name
+;               
+
+
+//combined-displaying all info+total resies, total_spendings and notifies
+select smm.*, a.total_resies, a.total_spent, a.notifies
+from  (select s.first_name, s.last_name, res.user_id, s.email, res.total_resies, res.total_spent, count(n.id) as notifies
+      from (select sm.first_name,sm.last_name,sm.email,rr.user_ID,count(rr.user_ID) as total_resies, sum(v.average_bill_size) as total_spent//, sum(rr.price)//,rr.date_booked,//rr.venue_ID 
+              from user_user as uu
+              inner join PC_FIVETRAN_DB.Public.select_members as sm on sm.email = uu.em_address
+              inner join reservation_bookreservation as rr on rr.user_ID=uu.ID                                                                                                      
+              inner join venue_info as v on v.ID=rr.venue_ID
+              where rr.date_booked <'2019-01-01'
+              and rr.date_booked >='2018-01-01'
+              and rr.cancellation_ID is Null  
+              group by sm.first_name,sm.last_name,sm.email,rr.user_ID) as res
+      join PC_FIVETRAN_DB.Public.select_members as s on s.email = res.email
+      left outer join "PC_FIVETRAN_DB"."AURORA_CORE"."NOTIFY_AVAIL_CONFIG"as n on n.Global_user_id=res.user_ID
+      group by s.first_name, s.last_name,res.user_ID,s.email,res.total_resies, res.total_spent)  as a
+join PC_FIVETRAN_DB.Public.select_members as smm on smm.email=a.email
+order by smm.last_name
+;                                                                                                               
+      
