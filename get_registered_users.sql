@@ -6,7 +6,36 @@ inner join user_user as uu on u.ID=uu.foreign_id
 where Uu.foreign_type = 'resy_app'
 order by u.date_created asc;
 
-#for 2018-12-20 the results is 4,716,560
+--for 2018-12-20 the results is 4,716,560
+
+--by selecting directly the count mismatches by 1
+select  uu.foreign_id, uu.id 
+from user_user as uu
+where Uu.foreign_type = 'resy_app'
+and uu.date_created <'2018-12-20';
+//result is 4,780,943
+
+
+--one person who is in user_user with foreign_type='resy_app' but he is NOT in user_info 
+-- run the query to find out who it is!
+select  inna.foreign_id as inna_f_id, uuu.id, uuu.foreign_id, uuu.*
+      
+    from     (select  uu.foreign_id 
+              from user_info as ui
+              inner join user_user as uu on uu.foreign_ID=ui.id
+              where Uu.foreign_type = 'resy_app'
+              and uu.date_created <'2018-12-20') as inna
+left outer join USER_info AS uii on inna.foreign_id=uii.id
+right outer join user_user as uuu on uii.ID=uuu.foreign_id
+where Uuu.foreign_type = 'resy_app'
+and inna.foreign_id is NULL
+and uuu.date_created <'2018-12-20'
+;
+
+
+
+
+
 
 #--------------If join with reservation table--INTERESTING FACTS!!!!!!-----------------------------------------------------------------------------------
 
