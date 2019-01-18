@@ -58,7 +58,7 @@ import snowflake.connector
 #creating a connection
 ctx = snowflake.connector.connect(
     user='inna',
-    password='347469Qq!',
+    password='...',
     account='yk58234.us-east-1'
     )
 #creating a cursor of the current connection
