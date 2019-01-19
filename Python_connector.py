@@ -1,43 +1,6 @@
-Skip to content
- 
-Search or jump to…
 
-Pull requests
-Issues
-Marketplace
-Explore
- @innakorina Sign out
-1
-1 0 innakorina/Snowflake_queries
- Code  Issues 0  Pull requests 0  Projects 0  Wiki  Insights  Settings
-Snowflake_queries/Python_connector.py
-61b1691  10 hours ago
-@innakorina innakorina corrected code
-     
-121 lines (101 sloc)  3.97 KB
-Python-Snowflake jobs
-
-Installing snowflake python connector
-pip install --upgrade snowflake-connector-python  (for Python 2)
-pip3 install --upgrade snowflake-connector-python
-Urllib error
-
-  File "/anaconda3/lib/python3.6/site-packages/pip/_internal/download.py", line 480, in path_to_url
-    url = urllib_parse.urljoin('file:', urllib_request.pathname2url(path))
-  File "/anaconda3/lib/python3.6/urllib/request.py", line 1739, in pathname2url
-    return quote(pathname)
-NameError: name 'quote' is not defined
-Solution: re-install conda and anaconda
-(I had a doctored version urrllib)
-attempted to install connector within a virtual environment, 
-“conda update anaconda” ran but didn’t help
-Ran in my home environment:
-conda update conda    (updating the package manager, includes new copy of urllib3)
-conda update anaconda  (updating update the meta-package)
-Tried 
-pip3 install --upgrade snowflake-connector-python
-yay, snowflake connector installed correctly!
-
+-------------------------------------Installing snowflake python connector
+https://docs.snowflake.net/manuals/user-guide/python-connector-install.html
 
 Establish secure snowflake connection
 From any text editor, create a file named validate.py with contents: (replace password)
@@ -130,21 +93,3 @@ finally:
     cs.close()      
 # =============================================================================    
 ctx.close()
-
-
-
-
-
-© 2019 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
-Help
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
-Press h to open a hovercard with more details.
