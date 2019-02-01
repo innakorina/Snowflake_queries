@@ -531,3 +531,53 @@ join PC_FIVETRAN_DB.Public.select_members as smm on smm.email=a.email
 order by smm.last_name
 ;                                                                                                               
       
+
+      
+// Reservations
+// all users with one row for each reservation
+// since some loc_2=null, li must be via left join
+
+      
+      
+select u.id as "real user id"
+, r.id as "reservation id"
+, r.num_seats as "party size"
+, r.date_booked as "date booked"
+, r.service_date as "date of visit"
+, r.from_app as "booked via app"
+, (case when r.is_walkin = 0 then 'False' else 'True' end) as "Walkin"
+, (case when r.cancellation_id = null then 'False' else 'True' end) as "Cancelled"
+, (case when s.status_id = 2 then 'True' else 'False' end) as "No show"
+, r.date_created
+//
+from user_user u
+//join user_locations ul on u.id = ul.user_id
+join reservation_bookreservation r on u.id = r.user_id
+join reservation_bookreservationstatus s on s.reservation_id=r.id 
+join venue_info v on v.id = r.venue_id
+join location_info li on li.id = v.location_id
+left outer join wait_list_waitlist w on w.reservation_id = r.id
+join (
+//  
+-- ushg diners
+-- all u.id for registered users who have gone to a ushg restaurant
+-- 102,942 rows registered users vs 132,800 rows all diners
+ 
+        select u.id user_id
+                ,vi.name venue_name
+                ,r.service_date service_date
+                ,r.id res_id 
+        from reservation_bookreservation r
+        join user_user u on u.id = r.user_id and u.foreign_type='resy_app'
+        join venue_info vi on vi.id = r.venue_id
+        join venue_group vg on vi.venue_group_id = vg.id
+      
+        where vg.name = 'USHG'
+        order by r.service_date asc
+    ) ushg on ushg.user_id = u.id
+and r.is_imported = 0 //exclude imported
+where r.date_created between '2018-06-31' and '2018-12-31'
+and u.date_created > '2014-01-01'
+//group by u.id
+order by r.date_created desc
+;      
