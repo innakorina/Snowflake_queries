@@ -15,7 +15,6 @@ Tested way to create new table in Snowflake and upload data from the local compu
 In Terminal type: 
 Innas-MacBook-Pro:Documents innakorzhouska$ alias snowsql=/Applications/SnowSQL.app/Contents/MacOS/snowsql
 --not needed in Windows
-Innas-MacBook-Pro:Documents innakorzhouska$ snowsql
 Innas-MacBook-Pro:Documents innakorzhouska$ snowsql -a yk58234.us-east-1 -u INNA
 INNA#(no warehouse)@(no database).(no schema)>use database experimental;   (important to put “;”)
 INNA#(no warehouse)@EXPERIMENTAL.PUBLIC>put file:///Users/innakorzhouska/Documents/user_locations.csv @"PC_FIVETRAN_DB"."PUBLIC"."EXP_STAGE";
@@ -25,28 +24,49 @@ INNA#(no warehouse)@EXPERIMENTAL.PUBLIC>put file:///Users/innakorzhouska/Documen
 
 
 //create new table
-create table PC_FIVETRAN_DB.AURORA_CORE.user_locations (User_ID NUMBER(20,0),reserv_total NUMBER(20,0), Loc_1 NUMBER(20,0), reserv_1_total NUMBER(20,0), weekends NUMBER(20,0), weekdays NUMBER(20,0),
-                                                                 score_1 NUMBER(20,0), frequent_neighborhood VARCHAR(16777216), frequent_venue NUMBER(20,0), frequent_num_of_seats NUMBER(20,0), 
-                                                                 frequent_source_ID VARCHAR(16777216), loc_2 NUMBER(20,0), reserv_2_total NUMBER(20,0), score_2 NUMBER(20,0),flag VARCHAR(16777216),
-                                                                 segment VARCHAR(16777216) ,activity VARCHAR(16777216), reserv_per_year NUMBER(20,0), loyalty_level VARCHAR(16777216), locations VARCHAR(16777216),
-                                                                switched_percentage NUMBER(20,0), frequent_delta NUMBER(20,0));
-                                                              
+create or replace table PC_FIVETRAN_DB.AURORA_CORE.user_locations_scores (User_ID NUMBER(20,0), uu_fid NUMBER(20,0),date_registered TIMESTAMP_TZ(9) ,total_resy_count NUMBER(20,0), completed_resys_count NUMBER(20,0),
+                                                               total_no_shows NUMBER(20,0), total_cancellations NUMBER(20,0), total_late_cancellations NUMBER(20,0),
+                                                               total_late_cancellation_penalty_vs_completed_resys NUMBER(20,0), late_cancel_vs_completed_resys NUMBER(20,0), 
+                                                               no_shows_vs_completed_resys NUMBER(20,0), Loc_1 NUMBER(20,0),resy_1_count NUMBER(20,0), weekends_1 NUMBER(20,0),weekdays_1 NUMBER(20,0),
+                                                               lunch_count_1 NUMBER(20,0), lunch_average_bill_size_1 NUMBER(20,0),dinner_count_1 NUMBER(20,0), dinner_average_bill_size_1 NUMBER(20,0), 
+                                                               average_bill_size_1 NUMBER(20,0), score_1 NUMBER(20,0), freq_neighborhood VARCHAR(16777216),freq_cuisine NUMBER(20,0), freq_venue NUMBER(20,0), 
+                                                               mean_venue_success_score NUMBER(20,0),mean_party_size NUMBER(20,0),mean_turn_time NUMBER(20,0), freq_source VARCHAR(16777216), 
+                                                               loc_2 NUMBER(20,0), resy_2_count NUMBER(20,0), score_2 NUMBER(20,0),travel_cat VARCHAR(16777216),
+                                                               activity VARCHAR(16777216), reserv_per_year NUMBER(20,0), loyalty_level VARCHAR(16777216), 
+                                                               switched_percentage NUMBER(20,0), freq_adv_book_days NUMBER(20,0), notifies_count NUMBER(20,0), 
+                                                               I1_score	NUMBER(20,0), I2_score NUMBER(20,0), I3_score NUMBER(20,0), I4_score NUMBER(20,0), I5_score NUMBER(20,0), I6_score NUMBER(20,0),
+                                                               I7_score NUMBER(20,0), I8_score NUMBER(20,0), I9_score NUMBER(20,0), I10_score NUMBER(20,0), consumer_score NUMBER(20,0));
+             
 //create upload file format
 create or replace file format my_csv_format_upload
   field_optionally_enclosed_by='"'
  // NULL_IF = ('\\N', 'NULL', 'NUL', '')
   field_delimiter = ','
-  RECORD_DELIMITER ='\n'
-;
-//uploading staged file  
-COPY INTO PC_FIVETRAN_DB.AURORA_CORE.user_locations from '@PC_FIVETRAN_DB.PUBLIC.EXP_STAGE/user_locations.csv.gz' file_format = (format_name=my_csv_format_upload compression ='gzip',skip_header = 1,  ERROR_ON_COLUMN_COUNT_MISMATCH = False );
+  RECORD_DELIMITER ='\n';
+  
+COPY INTO PC_FIVETRAN_DB.AURORA_CORE.user_locations_scores from '@PC_FIVETRAN_DB.PUBLIC.EXP_STAGE/user_locations_scores.csv.gz' file_format = (format_name=my_csv_format_upload compression ='gzip',skip_header = 1,  ERROR_ON_COLUMN_COUNT_MISMATCH = False );
 
-                                                                                                                        //testing the table:
+//rename table
+alter table user_locations_scores RENAME TO user_locations;
+
+//droptable
+drop table user_locations_scores;
+
+//change column type
+alter table user_locations alter user_ID set data type NUMBER(20,0);
+
+//add extra column if forgot
+alter table user_locations ADD COLUMN some_new_column NUMBER(20,0);
+
+//drop column if not needed
+alter table user_locations COLUMN  'date_registered' DROP DEFAULT;
+ 
+//test simple query
 select ul.USER_ID 
 from user_locations as ul
-inner join PC_FIVETRAN_DB.AURORA_CORE.USER_INFO as ui on ui.ID=ul.USER_ID
-;
+inner join PC_FIVETRAN_DB.AURORA_CORE.USER_INFO as ui on ui.ID=ul.USER_ID;
 
+                                    
 Warnings!: make sure the header is removed, there is no NAs in the data, and the csv format has the same number of the columns (the filewriting function doesn’t create a count column) 
 
 
