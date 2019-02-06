@@ -581,3 +581,53 @@ and u.date_created > '2014-01-01'
 //group by u.id
 order by r.date_created desc
 ;      
+
+-- Query for historical month over month active users      
+-- Using date as a variable to get active users in the last 1, 2, and 3 months. 
+-- The same query can be repeated for each month.
+      
+Create or replace TABLE "TESTDB"."PUBLIC".active_users ( month VARCHAR(16777216), m NUMBER(20,0), active_30 NUMBER(20,0), active_60 NUMBER(20,0), active_90 NUMBER(20,0));
+
+--
+INSERT INTO "TESTDB"."PUBLIC".active_users (month, m, active_30, active_60, active_90)
+select 'Jan' month, 1 m
+,g.user30 user30
+,g.user60 user60
+,g.user90 user90
+from
+(
+select '2014-01-01' d0
+, dateadd(month, -1, to_date(d0)) d1
+, dateadd(month, -2, to_date(d0)) d2
+, dateadd(month, -3, to_date(d0)) d3
+, count((case when lad.last_activity_date between d1 and d0 then lad.user_id end)) user30
+, count((case when lad.last_activity_date between d2 and d0 then lad.user_id end)) user60
+, count((case when lad.last_activity_date between d3 and d0 then lad.user_id end)) user90
+FROM "TESTDB"."PUBLIC"."LAST_ACTIVITY_DATE" lad
+where lad.reg_date < d0
+  and lad.reg_date <= lad.last_activity_date
+) g
+;
+
+INSERT INTO "TESTDB"."PUBLIC".active_users (month, m, active_30, active_60, active_90)
+select 'Feb' month, 2 m
+,g.user30 user30
+,g.user60 user60
+,g.user90 user90
+from
+(
+select '2014-02-01' d0
+, dateadd(month, -1, to_date(d0)) d1
+, dateadd(month, -2, to_date(d0)) d2
+, dateadd(month, -3, to_date(d0)) d3
+, count((case when lad.last_activity_date between d1 and d0 then lad.user_id end)) user30
+, count((case when lad.last_activity_date between d2 and d0 then lad.user_id end)) user60
+, count((case when lad.last_activity_date between d3 and d0 then lad.user_id end)) user90
+FROM "TESTDB"."PUBLIC"."LAST_ACTIVITY_DATE" lad
+where lad.reg_date < d0
+  and lad.reg_date <= lad.last_activity_date
+) g
+;
+      
+      
+      
