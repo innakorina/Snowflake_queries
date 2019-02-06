@@ -13,4 +13,4 @@ clone "EXPERIMENTAL"."PUBLIC"."USER_LOCATIONS_BY_MAX" into table ;
 grant all privileges on all tables in schema "PC_FIVETRAN_DB"."AURORA_CORE" to role looker_role;
 
 // change ownership of looker_scratch table or schema to pc_fivetran_role
-grant ownership on schema looker_scratch to role pc_fivetran_role REVOKE CURRENT GRANTS;
+grant ownership on schema looker_scratch to role pc_fivetran_role; //REVOKE CURRENT GRANTS;
