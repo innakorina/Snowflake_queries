@@ -57,8 +57,11 @@ CREATE TABLE PC_FIVETRAN_DB.AURORA_CORE.user_locations CLONE PC_FIVETRAN_DB.PUBL
 
 #---Remove table:
 drop table count_example
+                                                                                       
+                                                                                       
+                                                                                       
 
-2. Show tabeles
+2. Show tables
 https://docs.snowflake.net/manuals/sql-reference/sql/show-tables.html
 
 SHOW [ TERSE ] TABLES [ HISTORY ] [ LIKE '<pattern>' ]
@@ -73,8 +76,12 @@ show tables like 'line%' in tpch.public;
 |-------------------------------+-----------+---------------+-----------------------+-------+---------+------------+------------+--------------+-------+----------------|
 | 2016-01-13 09:07:40.562 -0800 | LINEITEM  | TPCH          | PUBLIC                | TABLE |         |            |    6001215 |    165228544 |       |              1 |
 +-------------------------------+-----------+---------------+-----------------------+-------+---------+------------+------------+--------------+-------+----------------+
-                                  
-
+ 
+                                                                                       
+#---display table's fields                                                                                       
+desc table user_user
+                                                                                       
+                                                                                       
 3. Update and alter a table and columns:
 
 #---Update table:
@@ -111,14 +118,37 @@ alter table t1 modify c2 drop default;
 alter table user_locations alter user_ID set data type NUMBER(20,0);
                                       
                                       
-3. Insert values
+3. Insert(rows) and update(columns) values
 https://docs.snowflake.net/manuals/sql-reference/sql/insert.html
+                                       
 INSERT [ OVERWRITE ] INTO <target_table> [ ( <target_col_name> [ , ... ] ) ]
                                          { { VALUES ( { <value> | DEFAULT | NULL } [ , ... ] ) [ , ( ... ) ] } | <query> }
+                                       
 insert into count_example values
 (11,101), (11,102), (11,null), (12,101), (null,101), (null,102);
 
-insert into my_table (x2, x5, x7, x10) select x2, x5, x7, x10 from t
+insert into my_table (x2, x5, x7, x10) select x2, x5, x7, x10 from t;
+ 
+                                       
+                                       
+insert into emp (id,first_name,last_name,city,postal_code,ph)
+  select a.id,a.first_name,a.last_name,a.city,a.postal_code,b.ph
+  from emp_addr a
+  inner join emp_ph b on a.id = b.id;
+                                       
+                                       
+insert overwrite into sf_employees
+  select * from employees
+  where city = 'San Francisco';
+
+#----Populate column values by query
+https://docs.snowflake.net/manuals/sql-reference/sql/update.html                                       
+ update t1
+  set t1.number_column = t1.number_column + t2.number_column, t1.text_column = 'ASDF'
+  from t2
+  where t1.key_column = t2.t1_key and t1.number_column < 10;                                      
+                                       
+                                       
  
 4. Copy from the file
 copy t (x1, ... , x10) from '/path/to/my_file' with (format csv)
