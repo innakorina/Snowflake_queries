@@ -46,6 +46,8 @@ create or replace file format my_csv_format_upload
   
 COPY INTO PC_FIVETRAN_DB.AURORA_CORE.user_locations_scores from '@PC_FIVETRAN_DB.PUBLIC.EXP_STAGE/user_locations_scores.csv.gz' file_format = (format_name=my_csv_format_upload compression ='gzip',skip_header = 1,  ERROR_ON_COLUMN_COUNT_MISMATCH = False );
 
+grant all privileges on table  PC_FIVETRAN_DB.AURORA_CORE.USER_LOCATIONS_SCORES to role LOOKER_ROLE;
+
 //rename table
 alter table user_locations_scores RENAME TO user_locations;
 
