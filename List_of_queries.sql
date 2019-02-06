@@ -546,7 +546,7 @@ select u.id as "real user id"
 , r.service_date as "date of visit"
 , r.from_app as "booked via app"
 , (case when r.is_walkin = 0 then 'False' else 'True' end) as "Walkin"
-, (case when r.cancellation_id = null then 'False' else 'True' end) as "Cancelled"
+, (case when r.cancellation_id is null then 'False' else 'True' end) as "Cancelled"
 , (case when s.status_id = 2 then 'True' else 'False' end) as "No show"
 , r.date_created
 //
