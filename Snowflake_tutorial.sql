@@ -78,14 +78,37 @@ show tables like 'line%' in tpch.public;
 +-------------------------------+-----------+---------------+-----------------------+-------+---------+------------+------------+--------------+-------+----------------+
  
                                                                                        
-#---display table's fields                                                                                       
+#describe tables fields                                                                                       
 desc table user_user
-                                                                                       
-                                                                                       
-3. Update and alter a table and columns:
 
-#---Update table:
-https://docs.snowflake.net/manuals/sql-reference/sql/update.html
+3. Rename table
+https://docs.snowflake.net/manuals/sql-reference/sql/alter-table.html
+                                                                                       
+ALTER TABLE [ IF EXISTS ] <name> RENAME TO <new_table_name>
+
+alter table active_users_info RENAME TO active_users
+                                                                                                                                                                              
+                                                                                       
+4. Manipulations with columns: create, change type, set default, other values, etc:
+
+https://docs.snowflake.net/manuals/sql-reference/sql/alter-table-column.html
+                                                                                       
+ALTER TABLE <name> { ALTER | MODIFY } [ ( ]
+                                          [ COLUMN ] <col1_name> DROP DEFAULT,
+                                          [ COLUMN ] <col1_name> { [ SET ] NOT NULL | DROP NOT NULL },
+                                          [ COLUMN ] <col1_name> [ [ SET DATA ] TYPE ] <type>,
+                                          [ COLUMN ] <col1_name> COMMENT '<string>',
+                                          [ [ COLUMN ] <col2_name> ... ]
+                                      [ ) ]
+#----create a column
+ALTER TABLE "PC_FIVETRAN_DB"."AURORA_CORE"."USER_LOCATIONS_SCORES_DERIVED" ADD COLUMN last_activity TIMESTAMP_TZ(9);                                                                                       
+#--- drop a column
+alter table t1 modify c2 drop default;
+#---change type of the column (only can increase the length)
+alter table user_locations alter user_ID set data type NUMBER(20,0);
+#===========================================================================================                                       
+https://docs.snowflake.net/manuals/sql-reference/sql/update.html                                         
+#---Fill out columns with a query result:                                                                       
 UPDATE <target_table>
        SET <col_name> = <value> [ , <col_name> = <value> , ... ]
         [ FROM <additional_tables> ]
@@ -95,32 +118,12 @@ update t1
   set t1.number_column = t1.number_column + t2.number_column, t1.text_column = 'ASDF'
   from t2
   where t1.key_column = t2.t1_key and t1.number_column < 10;
-https://docs.snowflake.net/manuals/sql-reference/sql/alter-table.html
-
-#---Rename table
-ALTER TABLE [ IF EXISTS ] <name> RENAME TO <new_table_name>
-
-alter table active_users_info RENAME TO active_users
-
-#---Modify columns:
-https://docs.snowflake.net/manuals/sql-reference/sql/alter-table-column.html
-ALTER TABLE <name> { ALTER | MODIFY } [ ( ]
-                                          [ COLUMN ] <col1_name> DROP DEFAULT,
-                                          [ COLUMN ] <col1_name> { [ SET ] NOT NULL | DROP NOT NULL },
-                                          [ COLUMN ] <col1_name> [ [ SET DATA ] TYPE ] <type>,
-                                          [ COLUMN ] <col1_name> COMMENT '<string>',
-                                          [ [ COLUMN ] <col2_name> ... ]
-                                      [ ) ]
-
-1) drop a column
-alter table t1 modify c2 drop default;
-2) change type of the column (only can increase the length)
-alter table user_locations alter user_ID set data type NUMBER(20,0);
+                                     
                                       
-                                      
-3. Insert(rows) and update(columns) values
+5. Insert rows
 https://docs.snowflake.net/manuals/sql-reference/sql/insert.html
-                                       
+                                                                             
+                                                                              
 INSERT [ OVERWRITE ] INTO <target_table> [ ( <target_col_name> [ , ... ] ) ]
                                          { { VALUES ( { <value> | DEFAULT | NULL } [ , ... ] ) [ , ( ... ) ] } | <query> }
                                        
@@ -139,18 +142,11 @@ insert into emp (id,first_name,last_name,city,postal_code,ph)
                                        
 insert overwrite into sf_employees
   select * from employees
-  where city = 'San Francisco';
-
-#----Populate column values by query
-https://docs.snowflake.net/manuals/sql-reference/sql/update.html                                       
- update t1
-  set t1.number_column = t1.number_column + t2.number_column, t1.text_column = 'ASDF'
-  from t2
-  where t1.key_column = t2.t1_key and t1.number_column < 10;                                      
+  where city = 'San Francisco';                                     
                                        
                                        
  
-4. Copy from the file
+6. Copy from the file
 copy t (x1, ... , x10) from '/path/to/my_file' with (format csv)
 
 
