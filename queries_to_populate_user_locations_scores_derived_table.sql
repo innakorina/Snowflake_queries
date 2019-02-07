@@ -4,8 +4,6 @@ https://docs.google.com/spreadsheets/d/15xZstPOQ6v2s7VQ1FxpMQKyIDi4hXuatrWDnKxsh
 Choose fields you prefer to work on and put your name next to it's name in the file above and update the status of the query.
 Paste your completed query below
 #=============================================================================================================================
-
-
 //creating derived table and populating activity
 CREATE TABLE "PC_FIVETRAN_DB"."AURORA_CORE"."USER_LOCATIONS_SCORES_DERIVED" CLONE "PC_FIVETRAN_DB"."AURORA_CORE"."USER_LOCATIONS_SCORES";
 grant all privileges on table "PC_FIVETRAN_DB"."AURORA_CORE"."USER_LOCATIONS_SCORES_DERIVED"  to role LOOKER_ROLE;
@@ -49,103 +47,129 @@ update user_locations_scores_derived ulsd
 
 
 
-#LATE_CANCEL_VS_COMPLETED_RESYS
+//LATE_CANCEL_VS_COMPLETED_RESYS
 
 
 
-#NO_SHOWS_VS_COMPLETED_RESYS
+//NO_SHOWS_VS_COMPLETED_RESYS
 
 
 
-#LOC_1
-
-
+//LOC_1
+alter table user_locations_scores_derived ADD COLUMN loc_1_name VARCHAR(16777216);
 
 update user_locations_scores_derived ulsd
-    set  ulsd.date_loc_1= li.name
-    from locations_info li
-    where li.id.id=ulsd.loc_1;
+    set  ulsd.loc_1_name= li.name
+    from location_info li
+    where li.id=ulsd.loc_1;
+
+alter table user_locations_scores_derived drop column loc_1;
+alter table user_locations_scores_derived RENAME COLUMN loc_1_name to loc_1;
+
+
+//RESY_1_COUNT
 
 
 
-#RESY_1_COUNT
+//WEEKENDS_1
 
 
 
-#WEEKENDS_1
+//WEEKDAYS_1
 
 
 
-#WEEKDAYS_1
+//LUNCH_COUNT_1
 
 
 
-#LUNCH_COUNT_1
+//LUNCH_AVERAGE_BILL_SIZE_1
 
 
 
-#LUNCH_AVERAGE_BILL_SIZE_1
+//DINNER_COUNT_1
 
 
 
-#DINNER_COUNT_1
+//DINNER_AVERAGE_BILL_SIZE_1
 
 
 
-#DINNER_AVERAGE_BILL_SIZE_1
+//AVERAGE_BILL_SIZE_1
 
 
 
-#AVERAGE_BILL_SIZE_1
+//SCORE_1
 
 
 
-#SCORE_1
+//FREQ_NEIGHBORHOOD
 
 
 
-#FREQ_NEIGHBORHOOD
+//FREQ_CUISINE
 
 
 
-#FREQ_CUISINE
+//FREQ_VENUE
+
+alter table user_locations_scores_derived ADD COLUMN freq_venue_name VARCHAR(16777216);
+
+update user_locations_scores_derived ulsd
+    set  ulsd.freq_venue_name= vi.name
+    from venue_info vi
+    where vi.id=ulsd.freq_venue;
+
+alter table user_locations_scores_derived drop column freq_venue;
+alter table user_locations_scores_derived RENAME COLUMN freq_venue_name to freq_venue;
 
 
 
-#FREQ_VENUE
+
+//MEAN_VENUE_SUCCESS_SCORE
 
 
 
-#MEAN_VENUE_SUCCESS_SCORE
+//MEAN_PARTY_SIZE
+//MEAN_TURN_TIME
+update user_locations_scores_derived ulsd
+set ulsd.MEAN_PARTY_SIZE= mean_covers, ulsd.mean_turn_time= rrr.mean_tt  
+from (select ar.user_id, AVG(ar.covers) as mean_covers, AVG(ar.turn_time) as mean_tt  //yet need to replace NA with 107 (min)
+      from "PC_FIVETRAN_DB"."ANALYTICS"."RESERVATIONS" ar
+      where ar.status in ('Dined','Custom Venue Status')
+      group by ar.user_id) rrr
+where rrr.user_id=ulsd.user_id;
 
 
 
-#MEAN_PARTY_SIZE
+
+
+//FREQ_SOURCE
 
 
 
-#MEAN_TURN_TIME
+//LOC_2
+alter table user_locations_scores_derived ADD COLUMN loc_2_name VARCHAR(16777216);
+
+update user_locations_scores_derived ulsd
+    set  ulsd.loc_2_name= li.name
+    from location_info li
+    where li.id=ulsd.loc_2;
+
+alter table user_locations_scores_derived drop column loc_2;
+alter table user_locations_scores_derived RENAME COLUMN loc_2_name to loc_2;
+
+
+//RESY_2_COUNT
 
 
 
-#FREQ_SOURCE
+//SCORE_2
 
 
 
-#LOC_2
-
-
-
-#RESY_2_COUNT
-
-
-
-#SCORE_2
-
-
-
-#TRAVEL_CAT
-#not possible in snowflake
+//TRAVEL_CAT
+//not possible in snowflake
 
 
 
@@ -173,61 +197,61 @@ where rrr.user_id=ulsd.user_id;
 
 
 
-#SWITCHED_PERCENTAGE
+//SWITCHED_PERCENTAGE
 
 
 
-#FREQ_ADV_BOOK_DAYS
+//FREQ_ADV_BOOK_DAYS
 
 
 
-#NOTIFIES_COUNT
+//NOTIFIES_COUNT
 
 
 
-#I1_SCORE
+//I1_SCORE
 
 
 
-#I2_SCORE
+//I2_SCORE
 
 
 
-#I3_SCORE
+//I3_SCORE
 
 
 
-#I4_SCORE
+//I4_SCORE
 
 
 
-#I5_SCORE
+//I5_SCORE
 
 
 
-#I6_SCORE
+//I6_SCORE
 
 
 
-#I7_SCORE
+//I7_SCORE
 
 
 
-#I8_SCORE
+//I8_SCORE
 
 
 
-#I9_SCORE
+//I9_SCORE
 
 
 
-#I10_SCORE
+//I10_SCORE
 
 
 
-#CONSUMER_SCORE_RAW
+//CONSUMER_SCORE_RAW
 
 
 
-#CONSUMER_SCORE
+//CONSUMER_SCORE
 
