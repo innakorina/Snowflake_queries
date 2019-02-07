@@ -103,9 +103,17 @@ ALTER TABLE <name> { ALTER | MODIFY } [ ( ]
 #----create a column
 ALTER TABLE "PC_FIVETRAN_DB"."AURORA_CORE"."USER_LOCATIONS_SCORES_DERIVED" ADD COLUMN last_activity TIMESTAMP_TZ(9);                                                                                       
 #--- drop a column
-alter table t1 modify c2 drop default;
+//alter table user_locations_scores_derived modify loc_1 drop default;        //didnt work
+alter table user_locations_scores_derived drop column loc_1;                 //worked
 #---change type of the column (only can increase the length)
 alter table user_locations alter user_ID set data type NUMBER(20,0);
+#----RENAME COLUMN
+RENAME COLUMN <col_name> to <new_col_name>
+                                         
+
+alter table user_locations_scores_derived RENAME COLUMN loc_1_name to loc_1;
+                                         
+                                        
 #===========================================================================================                                       
 https://docs.snowflake.net/manuals/sql-reference/sql/update.html                                         
 #---Fill out columns with a query result:                                                                       
