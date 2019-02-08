@@ -307,36 +307,6 @@ r.cancellation_id is null
  and year(r.date_booked) = 2018
 group by 1;
 
-8.Dense_Rank ranking the values from certain field
-https://docs.snowflake.net/manuals/sql-reference/functions/dense_rank.html
-
-DENSE_RANK() OVER ( [ PARTITION BY <expr1> ] ORDER BY <expr2> [ { ASC | DESC } ] )
-
-select state, bushels_produced, dense_rank()
-  over (order by bushels_produced desc)
-  from corn_production;
-
-+--------+------------------+------------+
-|  state | bushels_produced | DENSE_RANK |
-+--------+------------------+------------+
-| Kansas |              130 |          1 |
-| Kansas |              120 |          2 |
-| Iowa   |              110 |          3 |
-| Iowa   |              100 |          4 |
-+--------+------------------+------------+
-select state, bushels_produced, dense_rank()
-  over (partition by state order by bushels_produced)
-  from corn_production;
-
-+--------+------------------+------------+
-|  state | bushels_produced | DENSE_RANK |
-+--------+------------------+------------+
-| Iowa   |              110 |          1 |
-| Iowa   |              100 |          2 |
-| Kansas |              130 |          1 |
-| Kansas |              120 |          2 |
-+--------+------------------+------------+
-
 
 
 9. Case
@@ -628,7 +598,7 @@ order by Month_Year desc
 ;
                      
                      
-13. Listagg
+14. Listagg
 https://docs.snowflake.net/manuals/sql-reference/functions/listagg.html
 
 LISTAGG( [ DISTINCT ] <expr> [, <delimiter> ] ) [ WITHIN GROUP ( <orderby_clause> ) ]
@@ -640,25 +610,48 @@ JOIN reservation_bookreservation r on r.user_id = uu.id
 left outer JOIN venue_info v on v.id = r.venue_id 
 GROUP BY uu.id, v.location_id
 ORDER BY uu.id, "resyCount" desc
-;             
-             
-//===================================================================================================================
+;      
 
-Tricky differences between Snowflake and Querious:
+       
+15. Aggregates
+https://docs.snowflake.net/manuals/sql-reference/functions-aggregation.html
+       
+       
+#Dense_Rank ranking the values from certain field
+https://docs.snowflake.net/manuals/sql-reference/functions/dense_rank.html
 
-Snowflake sometimes won't display a quantity unless it's added in the groupby list. 
-Actual example that runs on Querious but not on Snowflake: 
-select li.id "location_info.id", li.name "location_info.name", count(distinct v.id) "venue_info.id", count(r.id) "res..bookres..id"
-from reservation_bookreservation r
-join venue_info v on v.id=r.venue_id and v.is_active=1
-inner join location_info li on li.id=v.location_id
-group by li.id
-order by li.id
-;
-To make it work, change group by li.id to group by li.id, li.name.
+DENSE_RANK() OVER ( [ PARTITION BY <expr1> ] ORDER BY <expr2> [ { ASC | DESC } ] )
+
+select state, bushels_produced, dense_rank()
+  over (order by bushels_produced desc)
+  from corn_production;
+
++--------+------------------+------------+
+|  state | bushels_produced | DENSE_RANK |
++--------+------------------+------------+
+| Kansas |              130 |          1 |
+| Kansas |              120 |          2 |
+| Iowa   |              110 |          3 |
+| Iowa   |              100 |          4 |
++--------+------------------+------------+
+select state, bushels_produced, dense_rank()
+  over (partition by state order by bushels_produced)
+  from corn_production;
+
++--------+------------------+------------+
+|  state | bushels_produced | DENSE_RANK |
++--------+------------------+------------+
+| Iowa   |              110 |          1 |
+| Iowa   |              100 |          2 |
+| Kansas |              130 |          1 |
+| Kansas |              120 |          2 |
++--------+------------------+------------+
+       
+       
+            
 
 
-14. REGEX
+16. REGEX
 https://www.postgresql.org/docs/9.3/functions-matching.html
 https://www.oreilly.com/library/view/mysql-cookbook/0596001452/ch04s08.html
 
@@ -734,3 +727,18 @@ order by e.lastname;
 | NULL     | NULL      | New York     |
 +----------+-----------+--------------+
 
+       
+//===================================================================================================================
+
+Tricky differences between Snowflake and Querious:
+
+Snowflake sometimes won't display a quantity unless it's added in the groupby list. 
+Actual example that runs on Querious but not on Snowflake: 
+select li.id "location_info.id", li.name "location_info.name", count(distinct v.id) "venue_info.id", count(r.id) "res..bookres..id"
+from reservation_bookreservation r
+join venue_info v on v.id=r.venue_id and v.is_active=1
+inner join location_info li on li.id=v.location_id
+group by li.id
+order by li.id
+;
+To make it work, change group by li.id to group by li.id, li.name.       
