@@ -629,5 +629,21 @@ where lad.reg_date < d0
 ) g
 ;
       
-      
+-- Generate pairs of real user ids and fake user ids
+-- Save to newly crated table
+          
+// create real and fake id pairs table
+Create or replace TABLE "TESTDB"."PUBLIC".fake_user_ids ( fake_id NUMBER(20,0), real_id NUMBER(20,0))
+;
+--
+// random numbers have to be first column
+// random(seed)
+INSERT INTO "TESTDB"."PUBLIC".fake_user_ids (fake_id, real_id)
+select distinct(abs(random(28))) fake_id
+,ua.id real_id
+from "PC_FIVETRAN_DB"."ANALYTICS"."USERS" ua
+where ua.id is not NULL
+//and ua.id<100
+;
+    
       
