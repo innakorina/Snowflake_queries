@@ -4,10 +4,11 @@ https://docs.google.com/spreadsheets/d/15xZstPOQ6v2s7VQ1FxpMQKyIDi4hXuatrWDnKxsh
 Choose fields you prefer to work on and put your name next to it's name in the file above and update the status of the query.
 Paste your completed query below
 #=============================================================================================================================
+
+
 //creating derived table and populating activity
 CREATE TABLE "PC_FIVETRAN_DB"."AURORA_CORE"."USER_LOCATIONS_SCORES_DERIVED" CLONE "PC_FIVETRAN_DB"."AURORA_CORE"."USER_LOCATIONS_SCORES";
 grant all privileges on table "PC_FIVETRAN_DB"."AURORA_CORE"."USER_LOCATIONS_SCORES_DERIVED"  to role LOOKER_ROLE;
-ALTER TABLE "PC_FIVETRAN_DB"."AURORA_CORE"."USER_LOCATIONS_SCORES_DERIVED" ADD COLUMN last_activity TIMESTAMP_TZ(9);
 
 
 
@@ -27,7 +28,7 @@ update user_locations_scores_derived ulsd
 
 
 
-//COMPLETED_RESYS_COUNT
+//COMPLETED_RESYS_COUNT---goes into I1_score
 
 
 
@@ -43,7 +44,7 @@ update user_locations_scores_derived ulsd
 
 
 
-//TOTAL_LATE_CANCELLATION_PENALTY_VS_COMPLETED_RESYS
+//TOTAL_LATE_CANCELLATION_PENALTY_VS_COMPLETED_RESYS---goes into I3_score
 
 
 
@@ -51,7 +52,7 @@ update user_locations_scores_derived ulsd
 
 
 
-//NO_SHOWS_VS_COMPLETED_RESYS
+//NO_SHOWS_VS_COMPLETED_RESYS---goes into I4_score
 
 
 
@@ -95,12 +96,12 @@ alter table user_locations_scores_derived RENAME COLUMN loc_1_name to loc_1;
 
 
 
-//AVERAGE_BILL_SIZE_1
+//AVERAGE_BILL_SIZE_1---goes into I7_score
 
 
 
 //SCORE_1
-
+//not possible in snowflake
 
 
 //FREQ_NEIGHBORHOOD
@@ -112,7 +113,6 @@ alter table user_locations_scores_derived RENAME COLUMN loc_1_name to loc_1;
 
 
 //FREQ_VENUE
-
 alter table user_locations_scores_derived ADD COLUMN freq_venue_name VARCHAR(16777216);
 
 update user_locations_scores_derived ulsd
@@ -126,20 +126,27 @@ alter table user_locations_scores_derived RENAME COLUMN freq_venue_name to freq_
 
 
 
-//MEAN_VENUE_SUCCESS_SCORE
+//MEAN_VENUE_SUCCESS_SCORE---goes into I9_score
 
 
 
-//MEAN_PARTY_SIZE
-//MEAN_TURN_TIME
+
+
+
+
+//MEAN_PARTY_SIZE----goes into I6_score
+//MEAN_TURN_TIME----goes into I10_score
 update user_locations_scores_derived ulsd
-set ulsd.MEAN_PARTY_SIZE= mean_covers, ulsd.mean_turn_time= rrr.mean_tt  
-from (select ar.user_id, AVG(ar.covers) as mean_covers, AVG(ar.turn_time) as mean_tt  //yet need to replace NA with 107 (min)
-      from "PC_FIVETRAN_DB"."ANALYTICS"."RESERVATIONS" ar
-      where ar.status in ('Dined','Custom Venue Status')
-      group by ar.user_id) rrr
-where rrr.user_id=ulsd.user_id;
-
+set ulsd.MEAN_PARTY_SIZE= ar.mean_covers, ulsd.mean_turn_time= ar.mean_turn_time_cleaned 
+from ( select AVG(a.covers) as mean_covers, a.user_id, CEIL(AVG(case when a.turn_time is NULL then 107
+                                                                when a.turn_time>300 then 107
+                                                                else a.turn_time end)) as mean_turn_time_cleaned
+       from "PC_FIVETRAN_DB"."ANALYTICS"."RESERVATIONS" as a
+       inner join user_locations_scores_derived d on d.user_id=a.user_id
+       where a.status in ('Dined','Custom Venue Status')
+      group by a.user_id
+      ) as ar
+where ar.user_id=ulsd.user_id;
 
 
 
@@ -165,6 +172,7 @@ alter table user_locations_scores_derived RENAME COLUMN loc_2_name to loc_2;
 
 
 //SCORE_2
+//not possible in snowflake
 
 
 
@@ -173,9 +181,9 @@ alter table user_locations_scores_derived RENAME COLUMN loc_2_name to loc_2;
 
 
 
-//ACTIVITY 
-//and LAST_ACTIVITY
-;
+//ACTIVITY---goes into I8_score
+//LAST_ACTIVITY
+ALTER TABLE "PC_FIVETRAN_DB"."AURORA_CORE"."USER_LOCATIONS_SCORES_DERIVED" ADD COLUMN last_activity TIMESTAMP_TZ(9);
 update USER_LOCATIONS_SCORES_DERIVED ulsd
 set ulsd.last_activity=rrr.last,  activity= case when last_activity >= DATEADD(day,-30,CURRENT_DATE()) then 'active30'
                                                           when last_activity between DATEADD(day,-60,CURRENT_DATE()) and DATEADD(day,-30,CURRENT_DATE()) then 'active60' 
@@ -189,7 +197,7 @@ where rrr.user_id=ulsd.user_id;
 
 
 
-//RESERV_PER_YEAR
+//RESERV_PER_YEAR---goes into I2_score
 
 
 
@@ -198,14 +206,14 @@ where rrr.user_id=ulsd.user_id;
 
 
 //SWITCHED_PERCENTAGE
-
+//not possible in snowflake
 
 
 //FREQ_ADV_BOOK_DAYS
 
 
 
-//NOTIFIES_COUNT
+//NOTIFIES_COUNT---goes into I5_score
 
 
 
