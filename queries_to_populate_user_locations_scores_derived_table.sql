@@ -26,15 +26,22 @@ update user_locations_scores_derived ulsd
 
 //TOTAL_RESY_COUNT
 update USER_LOCATIONS_SCORES_DERIVED ulsd
-set ulsd.TOTAL_RESY_COUNT=rrr.total_resys
+set ulsd.TOTAL_RESY_COUNT=ar.total_resys
 from (select rr.user_id, count(rr.user_id) total_resys
-      from reservation_bookreservation rr 
-      group by rr.user_id) rrr
-where rrr.user_id=ulsd.user_id;
+      from "PC_FIVETRAN_DB"."ANALYTICS"."RESERVATIONS" rr 
+      group by rr.user_id) ar
+where ar.user_id=ulsd.user_id;
+
 
 
 //COMPLETED_RESYS_COUNT---goes into I1_score
-
+update USER_LOCATIONS_SCORES_DERIVED ulsd
+set ulsd.COMPLETED_RESYS_COUNT=ar.COMPLETED_RESYS_COUNT
+from (select rr.user_id, count(rr.user_id) COMPLETED_RESYS_COUNT
+      from "PC_FIVETRAN_DB"."ANALYTICS"."RESERVATIONS" rr 
+      where rr.status_ID=5 
+      group by rr.user_id) ar
+where ar.user_id=ulsd.user_id;
 
 
 //TOTAL_NO_SHOWS
