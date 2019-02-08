@@ -25,7 +25,12 @@ update user_locations_scores_derived ulsd
 
 
 //TOTAL_RESY_COUNT
-
+update USER_LOCATIONS_SCORES_DERIVED ulsd
+set ulsd.TOTAL_RESY_COUNT=rrr.total_resys
+from (select rr.user_id, count(rr.user_id) total_resys
+      from reservation_bookreservation rr 
+      group by rr.user_id) rrr
+where rrr.user_id=ulsd.user_id;
 
 
 //COMPLETED_RESYS_COUNT---goes into I1_score
