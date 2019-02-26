@@ -539,7 +539,19 @@ full outer join locations l
 on e.locationid=l.locationid
 order by e.lastname;                   
                      
-12. View
+12. Variables
+https://docs.snowflake.net/manuals/sql-reference/session-variables.html
+
+#setting and calling:
+set my_variable=10;
+set my_variable='example';
+set (min, max)=(40, 70);
+select avg(salary) from emp where age between $min and $max;                   
+                     
+#show all variables:
+Show variables; 
+                     
+13. View
 Saving a view and referring to it in future to simplify the complexity of a query
                      
  //1)creating a view(s):
