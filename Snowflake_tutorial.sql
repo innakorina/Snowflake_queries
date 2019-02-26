@@ -583,7 +583,7 @@ The output of the previous query is:
                      
        
                      
-13. Pivot (and nested query)
+14. Pivot (and nested query)
 https://docs.snowflake.net/manuals/sql-reference/constructs/pivot.html
 
 SELECT ...
@@ -610,7 +610,7 @@ order by Month_Year desc
 ;
                      
                      
-14. Listagg
+15. Listagg
 https://docs.snowflake.net/manuals/sql-reference/functions/listagg.html
 
 LISTAGG( [ DISTINCT ] <expr> [, <delimiter> ] ) [ WITHIN GROUP ( <orderby_clause> ) ]
@@ -625,8 +625,9 @@ ORDER BY uu.id, "resyCount" desc
 ;      
 
        
-15. Aggregates
+16. Aggregates
 https://docs.snowflake.net/manuals/sql-reference/functions-aggregation.html
+
        
        
 #Dense_Rank ranking the values from certain field
@@ -663,7 +664,7 @@ select state, bushels_produced, dense_rank()
             
 
 
-16. REGEX
+17. REGEX
 https://www.postgresql.org/docs/9.3/functions-matching.html
 https://www.oreilly.com/library/view/mysql-cookbook/0596001452/ch04s08.html
 
@@ -672,7 +673,38 @@ RLIKE( <subject> , <pattern> [ , <parameters> ] )
 
 -- 2nd syntax
 <subject> RLIKE <pattern>
+
+
+18. Type conversion
+https://docs.snowflake.net/manuals/sql-reference/functions/cast.html
+
+CAST( <source_expr> AS <target_data_type> )
+
+select cast('1.2345' as decimal(15,2));
++---------------------------------+
+| CAST('1.2345' AS DECIMAL(15,2)) |
+|---------------------------------|
+| 1.23                            |
++---------------------------------+
+
+                           
+select cast(1.56 as integer);
+
++-----------------------+
+| CAST(1.56 AS INTEGER) |
+|-----------------------|
+|                     2 |
++-----------------------+
+
+select cast('05-Mar-2014' as timestamp);
+
++----------------------------------+
+| CAST('05-MAR-2014' AS TIMESTAMP) |
+|----------------------------------|
+| Wed, 05 Mar 2014 00:00:00 -0800  |
++----------------------------------+
        
+SET some_date=to_date('2019-02-26');
        
        
        Other Examples:
