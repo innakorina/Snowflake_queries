@@ -256,6 +256,21 @@ select tr.ID, sub2.id
 FROM "Transaction" tr
 JOIN sub2 ON tr.terminalid = sub2.terminalid;
 
+#-----HAVING
+https://docs.snowflake.net/manuals/sql-reference/constructs/having.html
+
+SELECT ...
+FROM ...
+GROUP BY ...
+HAVING <predicate>
+[ ... ]
+
+//The condition specified by the HAVING clause applies to expressions produced by the GROUP BY. Therefore, the same restrictions that apply to GROUP BY expressions also apply to the HAVING clause.
+
+select department_id
+from employees
+group by department_id
+having count(*) < 10;
 
 
 8. Aggregates:
