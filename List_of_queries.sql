@@ -648,6 +648,8 @@ where ua.id is not NULL
 ;
     
 // Percent of total using group by and sum over ()
+// Get percent of max by using 
+// max(count_per_venue) over () max_all_venues
                            
 select r.venue_id venueid
 , sum(count(distinct r.id)) over () total_all_venues
