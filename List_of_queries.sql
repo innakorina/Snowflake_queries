@@ -628,9 +628,10 @@ where lad.reg_date < d0
   and lad.reg_date <= lad.last_activity_date
 ) g
 ;
-      
+ 
 -- Generate pairs of real user ids and fake user ids
 -- Save to newly crated table
+-- pick a seed value
           
 // create real and fake id pairs table
 Create or replace TABLE "TESTDB"."PUBLIC".fake_user_ids ( fake_id NUMBER(20,0), real_id NUMBER(20,0))
@@ -639,11 +640,36 @@ Create or replace TABLE "TESTDB"."PUBLIC".fake_user_ids ( fake_id NUMBER(20,0), 
 // random numbers have to be first column
 // random(seed)
 INSERT INTO "TESTDB"."PUBLIC".fake_user_ids (fake_id, real_id)
-select distinct(abs(random(28))) fake_id
+select distinct(abs(random(1))) fake_id
 ,ua.id real_id
 from "PC_FIVETRAN_DB"."ANALYTICS"."USERS" ua
 where ua.id is not NULL
 //and ua.id<100
 ;
     
-      
+// Percent of total using group by and sum over ()
+                           
+select r.venue_id venueid
+, sum(count(distinct r.id)) over () total_all_venues
+, count(distinct r.id) count_per_venue
+, count_per_venue / total_all_venues*100 percent_of_total 
+from "PC_FIVETRAN_DB"."ANALYTICS"."RESERVATIONS" r
+where r.venue_id in (3239, 1686, 3026)
+and r.status_category not in ('Cancellation', 'No-Show')
+and r.date_booked > dateadd(week, -1, current_date())
+group by r.venue_id
+;
+
+ // count per venue using partition over                
+ select r.venue_id
+, count(distinct r.id) over (partition by r.venue_id order by r.venue_id) count_per_venue
+from "PC_FIVETRAN_DB"."ANALYTICS"."RESERVATIONS" r
+where r.venue_id is not NULL//in (3239, 1686, 3026)
+and r.status_category not in ('Cancellation', 'No-Show')
+and r.date_booked > dateadd(week, -1, current_date())
+limit 4
+;                           
+                            
+                            
+                            
+                            
