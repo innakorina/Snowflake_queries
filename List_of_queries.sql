@@ -673,5 +673,23 @@ limit 4
 ;                           
                             
                             
+// Update t1 from values in t2. Update scores of matching users and insert scores for new users
+
+// first make t2 out of a modified version of t1
+merge into "USER_GVS_SCORES_test2" t2 
+using
+(select t1.user_id user_id, 10 gvs_score
+from "USER_GVS_SCORES_test1" t1
+where t1.user_id in (2, 4,9)) t1m
+on t1m.user_id = t2.user_id
+when matched then update set t2.gvs_score = t1m.gvs_score;
+;                            
                             
+// now update t1 with t2                            
+merge into "USER_GVS_SCORES_test1" t1 
+using "USER_GVS_SCORES_test2" t2
+on t2.user_id = t1.user_id
+when matched then update set t1.gvs_score = t2.gvs_score
+when not matched then insert (t1.user_id, t1.gvs_score) values (t2.user_id, t2.gvs_score)
+;                            
                             
