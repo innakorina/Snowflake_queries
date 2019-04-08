@@ -717,4 +717,16 @@ unpivot
 ; 
 
                      
+//-- make table from an array
+                     
+create or replace table x ( col1 string, col2 variant);
+insert into x 
+select column1 as col1
+, parse_json(column2) as col2
+from values ('ts1', '[1,2,3]'),('ts2','[7,8,9]') as vals;
+
+//-- expand / flatten a table to contain a row for each item in the lists in col2
+                     
+select col1, col2, f.value as newcolumn from x, table(flatten(x.col2)) f;
+
                      
