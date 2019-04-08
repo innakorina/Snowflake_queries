@@ -633,6 +633,8 @@ where lad.reg_date < d0
 -- Save to newly crated table
 -- pick a seed value
           
+
+          
 // create real and fake id pairs table
 Create or replace TABLE "TESTDB"."PUBLIC".fake_user_ids ( fake_id NUMBER(20,0), real_id NUMBER(20,0))
 ;
@@ -693,3 +695,26 @@ when matched then update set t1.gvs_score = t2.gvs_score
 when not matched then insert (t1.user_id, t1.gvs_score) values (t2.user_id, t2.gvs_score)
 ;                            
                             
+// Unpivot a table (melt, expand)
+// Start with 3 columns largev, mediumv, and smallv containing a respective numeric value
+// end with one column minscol with 3 possible values: largev, mediumv, and smallv
+// the corresponding numeric value will be in the column adjacent to minscol  
+                     
+CREATE OR REPLACE TABLE "CLIMBING_MARKETS_1" (
+    location_id NUMBER(20,0)
+  , minscol VARCHAR(16777216)
+  , mins NUMBER(20,0)
+)
+AS
+select location_id, minscol, mins
+from "CLIMBING_MARKETS"
+unpivot
+( mins for minscol in  
+ (largev,  
+ mediumv, 
+ smallv)
+)
+; 
+
+                     
+                     
