@@ -729,4 +729,15 @@ from values ('ts1', '[1,2,3]'),('ts2','[7,8,9]') as vals;
                      
 select col1, col2, f.value as newcolumn from x, table(flatten(x.col2)) f;
 
-                     
+// -- Drop a column
+// -- Add a new column
+// -- Fill column
+                                                              
+alter table table1 DROP COLUMN USHG_flag ;
+alter table table1 ADD COLUMN USHG_flag VARCHAR(16777216);
+
+update table1 ulsd
+set ulsd.USHG_flag = 'USHG guest'
+from (select t.id from mytable t) as ushg 
+where ushg.id = ulsd.user_id
+;                                                              
