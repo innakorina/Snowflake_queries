@@ -744,3 +744,10 @@ set ulsd.USHG_flag = 'USHG guest'
 from (select t.id from mytable t) as ushg 
 where ushg.id = ulsd.user_id
 ;                                                              
+
+                                                              
+-- Create a table from a list of numbers
+-- note that the "nums" is ignored. Select statement requires "column1"
+select column1
+from (values(1),(2),(3)) nums
+;
