@@ -283,6 +283,9 @@ ORDER BY "resyCount" desc
 --"New registered User counts per month per city using the user_locations_max table"
 
 -- What is the number of new registered users, broken out by month, in 2018 by App city?
+-- Note about single and double quotes: use double quotes when assigning an alias in a select statement
+-- (ex: select location_id as "city")
+-- use single quotes in conditions involving strings (ex: city like 'New York')
 
 select date_from_parts(year(u.date_created), month(u.date_created), 1) Month_Year, //count(distinct ulm.user_id) New_Users
 
