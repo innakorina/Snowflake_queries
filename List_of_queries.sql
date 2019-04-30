@@ -751,3 +751,24 @@ where ushg.id = ulsd.user_id
 select column1
 from (values(1),(2),(3)) nums
 ;
+
+                     
+-- Update values of a column
+-- Values are typically populated row by row, rather than col by col
+-- It's easy to give same value to a given column for every row
+-- To populate difft values, you have to specify in which row to put which value
+
+alter table score_params add column weight FLOAT ;
+
+update score_params t1
+set weight = t2.weights
+//select weights
+from ( 
+ select subscore
+, (case when subscore = 'i1' then 15 
+        when subscore = 'i2' then 15
+        else NULL end) weights
+from score_params  
+) t2
+where t1.subscore = t2.subscore
+;
