@@ -18,6 +18,23 @@ inner join user_user as uu on u.ID=uu.foreign_id
 where Uu.foreign_type = 'resy_app'
 order by u.date_created asc;
 
+// do registered users share duplicate uu.ids with non-registered ones? No (none in analytics.users)
+// how many non-registered users have the same uu.id as a registered user? 0 in analytics.users. User_user might have some.
+// This is why AJ simply joins via user_id in the Reservations Looker explore.
+select count(aup.id)
+from "PC_FIVETRAN_DB"."ANALYTICS"."USERS" aup
+where foreign_id is NULL
+and foreign_type != 'resy_app'
+and aup.id in 
+(
+select au.id 
+  from "PC_FIVETRAN_DB"."ANALYTICS"."USERS" au
+  where au.foreign_id is not NULL
+  and foreign_type = 'resy_app'// 26MM distinct au.id have NULL foreign_id
+)
+;
+
+
 
 
 ## venue_info v  
