@@ -34,7 +34,9 @@ select au.id
 )
 ;
 
-
+-- This is how analytics.users and analytics.reservations can be joined (from LookML code)
+  ${venue_group.id} = ${venue.venue_group_id} ;
+  ${reservations.user_id} = ${users.id} ;
 
 
 ## venue_info v  
