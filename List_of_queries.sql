@@ -772,3 +772,9 @@ from score_params
 ) t2
 where t1.subscore = t2.subscore
 ;
+
+-- Use a suquery as a separate table
+
+WITH tb1 AS (select id from users where id < 130)
+select tb1.id user_id
+from tb1;
