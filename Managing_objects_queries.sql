@@ -22,3 +22,10 @@ GRANT SELECT ON VIEW PC_FIVETRAN_DB.ANALYTICS.NOTIFY TO SHARE SIMONDATA_SHARE;
 -- https://docs.snowflake.net/manuals/user-guide/security-access-privileges-shares.html
 grant usage on schema theSchemaName to theNonOwnerRoleName;
 grant select on all tables in schema theSchemaName to role theNonOwnerRoleName with grant option;
+
+--If the IMPORT SHARE privilege is granted to a role, any user with the role can perform the following tasks:
+--View all INBOUND shares (shared by provider accounts) and create databases for the shares.
+--View all OUTBOUND shares owned by the role.
+
+use role accountadmin;
+grant create share on account to sysadmin;
