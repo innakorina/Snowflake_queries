@@ -778,3 +778,4 @@ where t1.subscore = t2.subscore
 WITH tb1 AS (select id from users where id < 130)
 select tb1.id user_id
 from tb1;
+
